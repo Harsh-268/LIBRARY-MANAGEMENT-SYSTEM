@@ -25,15 +25,14 @@ const bookSchema = new mongoose.Schema({
     },
     totalCopies: { 
         type: Number, 
-        default: 1 
+        default: 1 ,
+        min: [0, "Total copies cannot be negative"]
     },
     availableCopies: { 
         type: Number, 
-        default: 1 
+        default: 1 ,
+        min: [0, "Available copies cannot be negative"],
     },
-    location: { 
-        type: String 
-    }, 
 }, { timestamps: true });
 
 export const Book = mongoose.model("Book", bookSchema);

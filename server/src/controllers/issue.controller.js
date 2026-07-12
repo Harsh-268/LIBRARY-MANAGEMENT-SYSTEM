@@ -5,6 +5,7 @@ import { Book } from "../models/book.model.js";
 import { User } from "../models/user.model.js";
 import apiResponse from "../utils/apiResponse.js";
 import mongoose from "mongoose";
+import { paginate } from "../utils/paginate.js";
 import {adjustStockInternal} from "./book.controller.js";
 
 
@@ -20,49 +21,62 @@ const issueBook=asyncHandler(async(req,res)=>{
     const session=await mongoose.startSession()
     session.startTransaction()
     try {
-    const book=await Book.findById(bookId).session(session)
-    if(!book || book.availableCopies<1){
-        throw new apiError(404,"Book not available")
+        const updatedBook=await Book.findOneAndUpdate(
+            {_id:bookId,availableCopies:{$gt:0}},
+            {$inc:{availableCopies:-1}},
+            {new:true,session}
+        );
+
+        if(!updatedBook){
+            throw new apiError(404,"Book is unavailable or does not exist")
+        }
+
+        const updatedUser=await User.findOneAndUpdate(
+            {_id:userId,borrowedBooks:{$ne:bookId},"borrowedBooks.2":{$exists:false}},
+            {$push:{borrowedBooks:bookId}},
+            {new:true,session}
+        )
+
+        if(!updatedUser){
+            throw new apiError(404,"User not found or has already borrowed maximum allowed copies of this book")
+        }
+
+        const [issueRecord]=await Issue.create(
+            [{
+                book:bookId,
+                user:userId
+            }],
+            {session}
+        )
+
+        await session.commitTransaction()
+
+        return res
+        .status(201)
+        .json(new apiResponse(201,{issueRecord,updatedBook,updatedUser},"Book issued successfully"))
+    } catch (error) {
+        await session.abortTransaction()
+        throw error
+    }finally{
+        session.endSession()
     }
-
-    const user=await User.findById(userId).session(session)
-    if(!user){
-        throw new apiError(404,"User not found")
-    }
-
-    const [issueRecord]=await Issue.create([{
-        book:bookId,
-        user:userId
-    }],{session})
-
-    book.availableCopies-=1
-    await book.save({session,validateBeforeSave:false})
-
-    user.borrowedBooks.push(bookId)
-    await user.save({session,validateBeforeSave:false})
-
-    await session.commitTransaction()
-    session.endSession()
-
-
-    return res
-    .status(201)
-    .json( new apiResponse(201,{issue:issueRecord,book,user},"Book issued successfully"))
-} catch (error) {
-    await session.abortTransaction()
-    throw error
-}
+    
 })
 
 
-const returnBook=asyncHandler(async(req,res)=>{
+const returnBook=asyncHandler(async(req,res)=>{ 
     const {issueId}=req.params
 
     if(!issueId){
         throw new apiError(400,"Issue ID is required")
     }
 
-    const issueRecord=await Issue.findById(issueId)
+   
+    const session=await mongoose.startSession()
+    session.startTransaction()
+    try {
+
+     const issueRecord=await Issue.findById(issueId)
     if(!issueRecord||issueRecord.status!=="ISSUED"){
         throw new apiError(400,"No active issue record found for this book")
     }
@@ -77,31 +91,58 @@ const returnBook=asyncHandler(async(req,res)=>{
         const fineRate=50
         fine=diffDays*fineRate
     }
-    issueRecord.returnDate=today
-    issueRecord.status="RETURNED"
-    issueRecord.fine=fine
 
-    await issueRecord.save()
+        issueRecord.returnDate=today
+        issueRecord.status="RETURNED"
+        issueRecord.fine=fine
 
-    const book= await adjustStockInternal(issueRecord.book,1)
+        await issueRecord.save({session})
 
-    await User.findByIdAndUpdate(issueRecord.user,{
-        $pull:{borrowedBooks:issueRecord.book}
-    })
+        const updatedBook=await Book.findByIdAndUpdate(
+            issueRecord.book,
+            {$inc:{availableCopies:1}},
+            {new:true,session}
+        )
 
-    return res
-    .status(200)
-    .json( new apiResponse(200,{issue:issueRecord,book},"Book returned successfully")
+        const updatedUser=await User.findByIdAndUpdate(
+            issueRecord.user,
+            {$pull:{borrowedBooks:issueRecord.book}},
+            {new:true,session}
+        ).select("-password")
+
+        await session.commitTransaction()
+
+         return res
+          .status(200)
+          .json( new apiResponse(200,{issue:issueRecord,updatedBook,updatedUser},"Book returned successfully")
     )
+    } catch (error) {
+        await session.abortTransaction()
+        if(error instanceof apiError){
+            throw error
+        }
+        throw new apiError(500,"An error occurred while processing the return. Please try again.")
+    }finally{
+        session.endSession()
+    }
+   
 })
 
-const getAllIssuedBooks=asyncHandler(async(req,res)=>{
-    const issues=await Issue.find()
+// const getAllIssuedBooks=asyncHandler(async(req,res)=>{
+//     const {page,limit}=req.query
+//     const {data:issues,metadata}= await paginate({
+//         model:Issue,
+//         query:{status:"ISSUED"},
+//         page,
+//         limit,
+//         populate:"book user",
+//         sort:{dueDate:1}
+//     })
 
-    return res
-    .status(200)
-    .json(new apiResponse(200,issues,"All issued books fetched successfully"))
-})
+//     return res
+//     .status(200)
+//     .json(new apiResponse(200,{issues,metadata},"All issued books fetched successfully"))
+// })
 
 const renewBook=asyncHandler(async(req,res)=>{
     const {issueId}=req.params
@@ -140,15 +181,21 @@ const renewBook=asyncHandler(async(req,res)=>{
 })
 
 const getOverdueBooks=asyncHandler(async(req,res)=>{
+    const {page,limit}=req.query
     const today=new Date()
-    const overdueIssues=await Issue.find({
-        dueDate:{$lt:today},
-        status:"ISSUED"
+    const {data:overdueIssues,metadata}= await paginate({
+        model:Issue,
+        query:{
+            dueDate:{$lt:today},
+            status:"ISSUED"
+        },
+        page,
+        limit
     })
 
     return res
     .status(200)
-    .json(new apiResponse(200,overdueIssues,"Overdue books fetched successfully"))
+    .json(new apiResponse(200,{overdueIssues,metadata},"Overdue books fetched successfully"))
 })
 const updateFineStatus=asyncHandler(async(req,res)=>{
     const {status,issueId}=req.body
@@ -157,17 +204,22 @@ const updateFineStatus=asyncHandler(async(req,res)=>{
         throw new apiError(400,"Fine status and issueId are required")
     }
 
-    const updateStatus= await Issue.findByIdAndUpdate(
-        issueId,
-        {$set:{fineStatus:status.toUpperCase()}},
-        {new:true}
-    )
+    const issue = await Issue.findById(issueId);
+    
+    if (!issue) {
+        throw new apiError(404, "Issue record not found");
+    }
+
+    // 2. Update the field (Mongoose will now track this change)
+    issue.fineStatus = status.toUpperCase();
+
+    // 3. Save it (.save() triggers ALL validators and enums by default)
+    await issue.save(); 
 
     return res
-    .status(200)
-    .json(new apiResponse(200,updateStatus,"Fine status updated successfully"))
-
-})
+        .status(200)
+        .json(new apiResponse(200, issue, "Fine status updated successfully"));
+});
 
 
 //user controllers
@@ -185,15 +237,20 @@ const getMyActiveIssues = asyncHandler(async (req, res) => {
     );
 });
 const getMyHistory = asyncHandler(async (req, res) => {
-    const history = await Issue.find({
-        user: req.user._id,
-        status: "RETURNED"
+    const {page,limit}=req.query
+
+    const {data:history,metadata}= await paginate({
+        model:Issue,
+        query:{user:req.user._id,status:"RETURNED"},
+        page,
+        limit,
+        populate:{path:"book",select:"title authors thumbnail"},
+        select:"-__v -createdAt -updatedAt",
+        sort:{returnDate:-1}
     })
-    .populate("book", "title authors thumbnail")
-    .sort({ returnDate: -1 }); 
 
     return res.status(200).json(
-        new apiResponse(200, history, "Borrowing history fetched successfully")
+        new apiResponse(200, {history,metadata}, "Borrowing history fetched successfully")
     );
 });
-export {issueBook,returnBook,getAllIssuedBooks,renewBook,getOverdueBooks,updateFineStatus,getMyActiveIssues,getMyHistory};
+export {issueBook,returnBook,renewBook,getOverdueBooks,updateFineStatus,getMyActiveIssues,getMyHistory};

@@ -1,6 +1,6 @@
-import asyncHandler from "../src/utils/asyncHandler.js";
-import apiError from "../src/utils/apiError.js";
-import { User } from "../src/models/user.model.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import apiError from "../utils/apiError.js";
+import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
 export const verifyJWT =asyncHandler(async(req,res,next)=>{
@@ -27,7 +27,7 @@ export const authorizeRoles=(...roles)=>{
     return (req,res,next)=>{
         if(!roles.includes(req.user?.role)){
 
-            return next(new apiError(403,"You are not authorized to access this route"))
+            return next(new apiError(401,"You are not authorized to access this route"))
         }
         next()
     }

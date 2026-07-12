@@ -2,13 +2,16 @@ import asyncHandler from "../utils/asyncHandler.js";
 import apiError from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import apiResponse from "../utils/apiResponse.js";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import { paginate } from "../utils/paginate.js";
 
 
 const generateAccessAndRefreshToken =async(userId)=>{
    try {
-     const user=await User.findById(userId)
+     const user= await User.findById(userId)
+     if(!user){
+         throw new apiError(404,"User not found")
+     }
      const accessToken=await user.generateAccessToken()
      const refreshToken=await user.generateRefreshToken()
  
@@ -24,7 +27,7 @@ const generateAccessAndRefreshToken =async(userId)=>{
 
 const registerUser = asyncHandler(async (req, res) => {
    
-    const { fullName, email, password,role } = req.body;
+    const { fullName, email, password} = req.body;
 
    
     if ([fullName, email, password].some((field) => field?.trim() === "")) {
@@ -43,7 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
         fullName,
         email,
         password,
-        role: role?.toUpperCase() || "STUDENT" 
+        role:"STUDENT" 
     });
 
    
@@ -75,13 +78,17 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new apiError(401,"Invalid credentials")
     }
 
-    const {accessToken,refreshToken} = await generateAccessAndRefreshToken(user._id)
+    const {accessToken,refreshToken} = await generateAccessAndRefreshToken(user)
 
-    const loggedInUser= await User.findById(user._id).select("-password")
+    const loggedInUser= user.toObject();
+    delete loggedInUser.password;
+    delete loggedInUser.refreshToken;
 
     const options={
         httpOnly:true,
-        secure:true
+        secure:true,
+        sameSite:"strict",
+        maxAge:24*60*60*1000
     }
 
     return res
@@ -131,7 +138,9 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
      }
  
      if(incomingRefreshToken!==user?.refreshToken){
-         throw new apiError(401,"Refresh token is exired or used")
+        user.refreshToken=undefined
+        await user.save({validateBeforeSave:false})
+         throw new apiError(401,"Refresh token is expired or used.Please login again")
      }
  
      const options={
@@ -163,6 +172,12 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
 const changeUserPassword = asyncHandler(async(req,res)=>{
 
     const {oldPassword,newPassword}=req.body;
+    if(!oldPassword || !newPassword){
+        throw new apiError(400,"All fields are required")
+    }
+    if(oldPassword===newPassword){
+        throw new apiError(400,"New password must be different from old password")
+    }
 
     const user =await User.findById(req.user._id)
 
@@ -205,33 +220,37 @@ const updateUserInfo = asyncHandler(async(req,res)=>{
 })
 
 const getUserBorrowHistory = asyncHandler(async (req, res) => {
-    const user = await User.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(req.user._id)
-            }
-        },
-        {
-            $lookup: {
-                from: "issues", // collection name for transactions
-                localField: "_id",
-                foreignField: "user",
-                as: "borrowHistory"
-            }
-        }
-    ]);
+    const {page,limit}=req.query
 
+    const{data:borrowHistory,metadata}= await paginate({
+        model:Issue,
+        query:{user:req.user._id,status:"RETURNED"},
+        page,
+        limit,
+        populate:"book",
+        sort:{returnDate:-1}
+    })
+    
     return res
         .status(200)
-        .json(new apiResponse(200, user[0].borrowHistory, "History fetched"));
+        .json(new apiResponse(200, { borrowHistory, metadata }, "History fetched"));
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find().select("-password");
+    const {page,limit}=req.query
+
+    const {data:users,metadata}= await paginate({
+        model:User,
+        page,
+        limit,
+        select:"-password",
+        sort:{createdAt:-1}
+    })
+
 
     return res
         .status(200)
-        .json(new apiResponse(200, users, "All users fetched successfully"));
+        .json(new apiResponse(200, { users, metadata }, "All users fetched successfully"));
 });
 
 const updateUserRole = asyncHandler(async (req, res) => {
@@ -249,5 +268,6 @@ const updateUserRole = asyncHandler(async (req, res) => {
         .status(200)
         .json(new apiResponse(200, updatedUser, "User role updated successfully"));
 });
+const forgetPassword=asyncHandler(async(req,res)=>{})
 
-export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,updateUserRole };
+export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,updateUserRole,forgetPassword };

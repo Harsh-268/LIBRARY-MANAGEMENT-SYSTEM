@@ -1,95 +1,142 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { LogIn, Mail, Lock } from "lucide-react";
-import toast from "react-hot-toast";
-import api from "../api/axios";
-import { useAuth } from "../context/AuthContext";
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import {useAuth} from '../context/AuthContext.jsx';
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+
+
+  const{login}=useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    // Basic frontend validation
+    if (!email || !password) {
+      toast.error('Please enter valid credentials.');
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      const response = await api.post("/users/login", { email, password });
-      const { user, accessToken } = response.data.data;
+      const result=await login(email,password)
       
-      login(user, accessToken);
-      toast.success(`Welcome back, ${user.fullName}!`);
       
-      // Redirect based on role defined in your Backend Schema
-      if (user.role === "ADMIN") navigate("/admin");
-      else navigate("/");
-      
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid credentials");
+      // setTimeout(()=>console.log("request sent"), 1000);
+      if (result.success) {
+        console.log("h")
+        // const {user}=useAuth()
+        
+
+        toast.success('Successfully signed in!');
+  
+        if(result.user.role === 'ADMIN') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/get-books');
+        }
+      }else{
+        throw new Error(result.message)
+      }
+
+    } catch (err) {
+        const errorMessage = err.response?.data?.message || 'Incorrect email or password.';
+        toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+      
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh]">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <div className="text-center mb-8">
-          <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogIn className="text-blue-600" size={30} />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800">Login</h1>
-          <p className="text-gray-500">Access your library account</p>
-        </div>
+    <div className="min-h-screen bg-[#f6f8fa] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+      
+      {/* Header Section */}
+      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
+        {/* GitHub-style Logo Icon */}
+        <svg height="48" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="48" data-view-component="true" className="fill-[#24292f] mb-6">
+        </svg>
+        <h2 className="text-center text-[24px] font-light tracking-tight text-[#24292f]">
+          Sign in to LMS
+        </h2>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="relative">
-            <label className="text-sm font-semibold text-gray-600 mb-1 block">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
+      {/* Main Form Card */}
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-[340px]">
+        <div className="bg-white py-5 px-4 shadow-sm sm:rounded-md sm:px-6 border border-[#d0d7de]">
+          
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-[#24292f] mb-1.5">
+                Email address
+              </label>
               <input
+                id="email"
+                name="email"
                 type="email"
-                required
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="email@example.com"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="appearance-none block w-full px-3 py-1.5 border border-[#d0d7de] rounded-md shadow-sm placeholder-gray-400 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors"
               />
             </div>
-          </div>
 
-          <div className="relative">
-            <label className="text-sm font-semibold text-gray-600 mb-1 block">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label htmlFor="password" className="block text-sm font-semibold text-[#24292f]">
+                  Password
+                </label>
+                <Link to="/forgot-password" className="text-xs text-[#0969da] hover:underline" tabIndex="-1">
+                  Forgot password?
+                </Link>
+              </div>
               <input
+                id="password"
+                name="password"
                 type="password"
-                required
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="••••••••"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none block w-full px-3 py-1.5 border border-[#d0d7de] rounded-md shadow-sm placeholder-gray-400 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors"
               />
             </div>
-          </div>
 
-          <button
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
-          >
-            {loading ? "Verifying..." : "Sign In"}
-          </button>
-        </form>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#2da44e] hover:bg-[#2c974b] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2da44e] disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  'Sign in'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
 
-        <p className="text-center mt-6 text-sm text-gray-600">
-          New student? <Link to="/register" className="text-blue-600 font-bold hover:underline">Create Account</Link>
-        </p>
+       
+        <div className="mt-4 py-4 px-4 border border-[#d0d7de] rounded-md text-center text-sm text-[#24292f]">
+          New to LMS?{' '}
+          <Link to="/register" className="text-[#0969da] hover:underline">
+            Create an account
+          </Link>
+          .
+        </div>
       </div>
     </div>
   );
-};
-
-export default Login;
+}

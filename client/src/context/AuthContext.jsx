@@ -1,37 +1,45 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { useContext } from "react";
+import { useState } from "react";
+import api from "../api/axios";
 
-const AuthContext = createContext();
+const AuthContext=React.createContext();
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    // Persist login state even after page refresh
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+const AuthProvider = ({children}) => {
+    const[user,setUser]=useState(null)
+    
+
+    const login=async(email,password)=>{
+    try {
+        const response=await api.post("/users/login",{email,password})
+        setUser(response.data.data.user)
+        console.log(response.data.data.user)
+
+        return {
+            success:true,
+            message:"User has been successfully logged in",
+            user:response.data.data.user
+
         }
-        setLoading(false);
-    }, []);
 
-    const login = (userData, token) => {
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("accessToken", token);
-    };
+    } catch (error) {
+        return{
+            success:false,
+            message:"Invalid Credentials"
+        }
+    }
+}
+  return (
+    <AuthContext.Provider value={{user,setUser,login}}>
+     {children}
+    </AuthContext.Provider>
+  )
+}
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("accessToken");
-    };
+const useAuth=()=>{
+    const context=useContext(AuthContext)
+    return context
+}
 
-    return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
+export  {AuthProvider,AuthContext,useAuth}
 
-export const useAuth = () => useContext(AuthContext);

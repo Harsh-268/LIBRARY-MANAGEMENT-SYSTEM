@@ -5,26 +5,55 @@ import { Issue } from "../models/issue.model.js";
 import apiResponse from "../utils/apiResponse.js";
 import mongoose from "mongoose";
 import axios from "axios";
+import { paginate } from "../utils/paginate.js";
 
 
 const adjustStockInternal = async (bookId, amount) => {
-    try {
-        const book = await Book.findById(bookId);
-        if (!book) return null;
+    // try {
+        if(amount === 0){
+            throw new apiError(400,"Please provide an appropriate amount of copies")
+        }
+        const session=await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const book = await Book.findOneAndUpdate(
+                {_id:bookId},
+                {$inc: { totalCopies: amount, availableCopies: amount }},
+                { session,new: true,runValidators: true }
+            );
+            if (!book){
+                throw new apiError(404,"Book not found")
+            }
+            if(book.availableCopies < 0 || book.totalCopies < 0){
+                await session.abortTransaction();
+                throw new apiError(400,"Cannot update stock, would result in negative copies")
+            }
+            await session.commitTransaction();
+             return book;
+        
+        } catch (error) {
+            if(session.inTransaction()){
+            await session.abortTransaction();
+            }
+            if(error instanceof apiError){
+                throw error
+            }
+            throw new apiError(500,`Error adjusting book stock:  ${error.message}`);
+        }finally{
+            session.endSession();
+        }
+    
+        // book.totalCopies += amount;
+        // book.availableCopies += amount; 
 
+        // if(book.totalCopies < 0|| book.availableCopies < 0)
+        // {return null}
 
-        book.totalCopies += amount;
-        book.availableCopies += amount; 
-
-        if(book.totalCopies < 0|| book.availableCopies < 0)
-        {return null}
-
-        await book.save({ validateBeforeSave: false });
-        return book;
-    } catch (error) {
-        console.error("Database Erorr: ", error);
-        return null;
-    }
+        // await book.save({ validateBeforeSave: false });
+       
+    // } catch (error) {
+    //     throw new apiError(400,"Error adjusting book stock: ", error);
+    // }
 };
 
 
@@ -61,26 +90,45 @@ const searchBooksByISBN = asyncHandler(async (req, res) => {
         .status(200)
         .json(new apiResponse(200,books,"Books fetched successfully"))
     } catch (error) {
-        throw new apiError(500,"Failed to fetch book details from Google Books API")
+        // 1. If it's the 404 error we threw above, keep it as a 404!
+        if (error.statusCode === 404 || error.name === "apiError") {
+            throw error; 
+        }
+
+        // 2. Log the REAL error to your MacBook terminal so you can debug it
+        //console.error("API Crash Reason:", error.response?.data || error.message);
+
+        // 3. Throw the generic 500 only for unexpected crashes
+        throw new apiError(500, "Failed to fetch book details from Google Books API");
+    
     }
 
 })
 
 const addBookToLibrary = asyncHandler(async (req, res) => {
-    const { title, authors,isbn,description,thumbnail,category,totalCopies } = req.body;
+    const { title,isbn, authors,description,thumbnail,category,pageCount,totalCopies } = req.body;
 
     const existingBook = await Book.findOne({ isbn });
     if (existingBook) {
-        throw new apiError(409, "Book with this ISBN already exists in the library");
+        // throw new apiError(409, "Book with this ISBN already exists in the library");
+        // Instead of throwing an error, we can choose to update the existing book's stock
+        const updatedBook = await adjustStockInternal(existingBook._id, totalCopies || 1);
+        if (!updatedBook) {
+            throw new apiError(500, "Something went wrong while updating the existing book's stock");
+        }
+        return res
+        .status(200)
+        .json(new apiResponse(200, updatedBook, "Existing book stock updated successfully"));
     }
 
     const book = await Book.create({
         title,
         authors,
-        isbn,
         description,
         thumbnail,
         category,
+        pageCount,
+        isbn,
         totalCopies:totalCopies || 1,
         availableCopies:totalCopies || 1
     });
@@ -100,11 +148,11 @@ const updateBookDetails = asyncHandler(async (req, res) => {
     const { bookId } = req.params;
     const updates = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        throw new apiError(400, "Invalid book ID");
-    }
+    // if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    //     throw new apiError(400, "Invalid book ID");
+    // }
 
-    const book = await Book.findByIdAndUpdate(bookId, updates, { new: true });
+    const book = await Book.findByIdAndUpdate(bookId, { $set: updates }, { new: true,runValidators: true });
 
     if (!book) {
         throw new apiError(400, "Something went wrong while updating book details");
@@ -120,11 +168,7 @@ const updateBookDetails = asyncHandler(async (req, res) => {
 const deleteBookFromLibrary = asyncHandler(async (req, res) => {
     const { bookId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        throw new apiError(400, "Invalid book ID");
-    }
-
-    const isIssued= await Issue.findOne({bookId})
+    const isIssued= await Issue.findOne({book:bookId,status:"ISSUED"})
 
     if(isIssued){
         throw new apiError(400,"Cannot delete book as it is currently issued to a user")
@@ -148,11 +192,15 @@ const updateBookStock = asyncHandler(async (req, res) => {
     const {bookId}= req.params;
     const {changeInCopies}= req.body;
 
+    if(changeInCopies === undefined||isNaN(Number(changeInCopies))){
+        throw new apiError(400,"changeInCopies must be a valid number")
+    }
+
     const updatedBook= await adjustStockInternal(bookId,Number(changeInCopies));
 
-    if(!updatedBook){
-        throw new apiError(400," Book not found.")
-    }
+    // if(!updatedBook){
+    //     throw new apiError(400," Book not found.")
+    // }
     
     return res
     .status(200)
@@ -166,21 +214,26 @@ const updateBookStock = asyncHandler(async (req, res) => {
 
 //user controllers
 const getAllBooks = asyncHandler(async (req, res) => {
-    const books =await Book.find({})
+    const {page,limit}= req.query;
 
-    if(!books || books.length===0){
-        throw new apiError(404,"No books found in the library")
-    }
+    const {data:books,metadata}= await paginate({
+        model:Book,
+        page,
+        limit,
+        sort:{createdAt:-1},
+        select:"title authors description thumbnail category"
+    })
+
     return res
     .status(200)
-    .json(new apiResponse(200,books,"Books fetched successfully"))
+    .json(new apiResponse(200,{books,metadata},"Books fetched successfully"))
 })
 const getBookById = asyncHandler(async (req,res) => {
     const {bookId}= req.params;
     
-    if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        throw new apiError(400, "Invalid book ID");
-    }
+    // if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    //     throw new apiError(400, "Invalid book ID");
+    // }
     const book = await Book.findById(bookId);
 
     if(!book){
@@ -193,44 +246,53 @@ const getBookById = asyncHandler(async (req,res) => {
 })
 
 const searchLibraryBooks = asyncHandler(async (req,res) => {
-    const {q}=req.query
+    const {q,page,limit}=req.query
 
     if(!q || q.trim()===""){
         throw new apiError(400,"Search query is required")
     }
 
-    const books= await Book.find({
+    const searchQuery={
         $or:[
             {title:{$regex:q,$options:"i"}},
             {authors:{$regex:q,$options:"i"}},
         ]
-    })
-
-    if(!books || books.length===0){
-        throw new apiError(404,"No books found matching the title")
     }
+    const {data:books,metadata}= await paginate({
+        model:Book,
+        query:searchQuery,
+        page,
+        limit,
+        sort:{createdAt:-1}
+    })
 
     return res
     .status(200)
-    .json(new apiResponse(200,books,"Books found successfully"))
+    .json(new apiResponse(200,{books,metadata},"Books found successfully"))
 })
 
 const getBooksByCategory= asyncHandler(async (req,res) => {
     const{category}= req.params
+    const {page,limit}= req.query
     
     if(!category || category.trim()===""){
         throw new apiError(400,"Category is required for search")
     }
-    const books= await Book.find({
+    const searchQuery={
         category:{$regex:category,$options:"i"}
+    }
+
+    const {data:books,metadata}= await paginate({
+        model:Book,
+        query:searchQuery,
+        page,
+        limit,
+        sort:{createdAt:-1}
     })
 
-    if(!books || books.length===0){
-        throw new apiError(404,"No books found in this category")
-    }
 
     return res
     .status(200)
-    .json(new apiResponse(200,books,"Books fetched successfully"))
+    .json(new apiResponse(200,{books,metadata},"Books fetched successfully"))
 })
 export {searchBooksByISBN,addBookToLibrary,getAllBooks,updateBookDetails,deleteBookFromLibrary,updateBookStock,getBookById,getBooksByCategory,searchLibraryBooks,adjustStockInternal};
