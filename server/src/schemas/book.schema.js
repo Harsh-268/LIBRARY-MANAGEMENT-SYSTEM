@@ -16,7 +16,7 @@ export const addBookToLibrarySchema= z.object({
         description: z.string().trim().min(10,"Description must be at least 10 characters long").max(1000,"Description must be at most 1000 characters long"),
         thumbnail: z.string().trim().url(),
         category: z.string().trim().min(2,"Category must be at least 2 characters long").max(50,"Category must be at most 50 characters long"),
-        pageCount: z.number().int().positive(),
+        pageCount: z.number().int().positive().min(1,"Page count must be at least 1"),
         totalCopies: z.number().int().positive()
     })
 })

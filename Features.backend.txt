@@ -1,0 +1,9 @@
+RBAC(middleware)
+ACID transactions with mongodb session 
+atomic operations
+cookies with http and secure true (for auth and data security from xss attacks)
+JWT rotation for authentication and user security(through access and refresh token)
+pagination for controller which provide a list of data for better load management on the server and DB
+ZOD validation for clean and sanitized client input 
+Centralized error and response handling
+Aggregation pipeline for admin dashboard

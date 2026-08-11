@@ -19,12 +19,12 @@ api.interceptors.response.use(
       !originalRequest.url.includes("/register") &&
       !originalRequest.url.includes("/refresh-token")
     ) {
-      originalRequest.retry = true;
+      originalRequest._retry = true;
 
       try {
         (await api.post("/users/refresh-token", {}), { withCredentials: true });
 
-        return api(originalRequst);
+        return api(originalRequest);
       } catch (refreshError) {
         console.error(
           "Refresh token expired . Redirecting to the login page...",

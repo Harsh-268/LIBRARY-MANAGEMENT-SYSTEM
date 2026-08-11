@@ -17,7 +17,7 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link 
-              to="/all-books" 
+              to="/get-books" 
               className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors text-lg shadow-lg"
             >
               Browse Library
@@ -67,7 +67,7 @@ const Home = () => {
           </div>
           
           <div className="mt-12">
-            <Link to="/books" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">
+            <Link to="/get-books" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">
               View all books &rarr;
             </Link>
           </div>

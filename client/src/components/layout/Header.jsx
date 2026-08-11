@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext,useAuth } from '../../context/AuthContext';
 import api from '../../api/axios'; // Make sure this path points to your axios instance
 
 const Header = () => {
   // Pull our authentication state directly from Context
-  const {user,setUser} = useContext(AuthContext);
+  const {user,setUser} = useAuth();
   const navigate = useNavigate();
    
 

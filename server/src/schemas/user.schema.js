@@ -27,8 +27,8 @@ export const changeUserPasswordSchema = z.object({
 //validation for updateUserInfo controller
 export const updateUserInfoSchema = z.object({
     body:z.object({
-        fullName:z.string().trim().min(5,"full name must be at least 5 characters long. ").max(100,"full name cannot exceed 100 characters. ").optional(),
-        email:z.string().trim().email("Please enter a valid email address. ").toLowerCase().max(255,"email cannot exceed 255 characters. ").optional()
+        fullName:z.string().trim().min(5,"full name must be at least 5 characters long. ").max(100,"full name cannot exceed 100 characters. ").optional()
+        // email:z.string().trim().email("Please enter a valid email address. ").toLowerCase().max(255,"email cannot exceed 255 characters. ").optional()
     })
 })
 

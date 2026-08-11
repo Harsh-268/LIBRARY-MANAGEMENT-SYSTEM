@@ -23,6 +23,10 @@ const bookSchema = new mongoose.Schema({
     category: { 
         type: String 
     },
+    pageCount: { 
+        type: Number, 
+        min: [1, "Page count must be at least 1"]
+    },
     totalCopies: { 
         type: Number, 
         default: 1 ,

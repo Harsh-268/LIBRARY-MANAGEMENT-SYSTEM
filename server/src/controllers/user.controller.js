@@ -20,7 +20,7 @@ const generateAccessAndRefreshToken =async(userId)=>{
  
      return{accessToken,refreshToken}
    } catch (error) {
-        throw new apiError(500,"Something went wrong while generating tokens")
+        throw new apiError(error?.statusCode || 500,error?.message || "Something went wrong while generating access and refresh token")
    }
      
 }
