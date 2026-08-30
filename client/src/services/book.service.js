@@ -62,24 +62,40 @@ export const searchBooksByISBN = async (isbn) => {
 
 //Add book to library (for admin use)
 export const addBookToLibrary = async (bookData) => {
-  const response = await api.post("/books/add-book", bookData);
+  const response = await api.post("/books/add", bookData);
   return response.data.data; // newly added book object
 }
 
 //Update book details (for admin use)
 export const updateBookDetails = async (bookId, updatedData) => {
-  const response = await api.put(`/books/update-book/${bookId}`, updatedData);
+  const response = await api.put(`/books/update/${bookId}`, updatedData);
   return response.data.data; // updated book object
 }
 
 //Delete book from library (for admin use)
 export const deleteBookFromLibrary = async (bookId) => {
-  const response = await api.delete(`/books/delete-book/${bookId}`);
+  const response = await api.delete(`/books/delete/${bookId}`);
   return response.data.data; // deleted book object
 }
 
 //Update book stock (for admin use)
-export const updateBookStock = async (bookId, newStock) => {
-  const response = await api.put(`/books/update-stock/${bookId}`, { stock: newStock });
+export const updateBookStock = async (bookId, changeInCopies) => {
+  const response = await api.put(`/books/update-stock/${bookId}`, {changeInCopies });
   return response.data.data; // updated book object
+}
+
+
+
+//Public book services
+
+//Get most issued books
+export const getMostIssuedBooks = async () => {
+  const response = await api.get("/books/most-issued");
+  return response.data.data; // array of most issued books
+}
+
+//Get recently added books
+export const getRecentlyAddedBooks = async () => {
+  const response = await api.get("/books/recently-added");
+  return response.data.data; // array of recently added books
 }

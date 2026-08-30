@@ -6,7 +6,6 @@ import { User } from "../models/user.model.js";
 import apiResponse from "../utils/apiResponse.js";
 import mongoose from "mongoose";
 import { paginate } from "../utils/paginate.js";
-import {adjustStockInternal} from "./book.controller.js";
 
 
 //admin controllers
@@ -95,6 +94,7 @@ const returnBook=asyncHandler(async(req,res)=>{
         issueRecord.returnDate=today
         issueRecord.status="RETURNED"
         issueRecord.fine=fine
+        issueRecord.fineStatus = fine > 0 ? "UNPAID" : "NONE" 
 
         await issueRecord.save({session})
 

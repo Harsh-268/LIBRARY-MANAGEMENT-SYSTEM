@@ -272,6 +272,7 @@ const searchLibraryBooks = asyncHandler(async (req,res) => {
 })
 
 const getBooksByCategory= asyncHandler(async (req,res) => {
+
     const{category}= req.params
     const {page,limit}= req.query
     
@@ -295,4 +296,54 @@ const getBooksByCategory= asyncHandler(async (req,res) => {
     .status(200)
     .json(new apiResponse(200,{books,metadata},"Books fetched successfully"))
 })
-export {searchBooksByISBN,addBookToLibrary,getAllBooks,updateBookDetails,deleteBookFromLibrary,updateBookStock,getBookById,getBooksByCategory,searchLibraryBooks,adjustStockInternal};
+
+//user controllers to get top 5 most issued books
+const getMostIssuedBooks = asyncHandler(async (req, res) => {
+    const topBooks = await Issue.aggregate([
+        {
+            $group: {
+                _id: "$book",
+                issueCount: { $sum: 1 }
+            }
+        },
+        { $sort: { issueCount: -1 } },
+        { $limit: 5 },
+        {
+            $lookup: {
+                from: "books",
+                localField: "_id",
+                foreignField: "_id",
+                as: "book"
+            }
+        },
+        { $unwind: "$book" },
+        {
+            $project: {
+                _id: "$book._id",
+                title: "$book.title",
+                authors: "$book.authors",
+                thumbnail: "$book.thumbnail",
+                category: "$book.category",
+                issueCount: 1
+            }
+        }
+    ]);
+
+    return res
+        .status(200)
+        .json(new apiResponse(200, topBooks, "Most issued books fetched successfully"));
+});
+
+//user controller to get recent 5 added books
+const getRecentlyAddedBooks = asyncHandler(async (req, res) => {
+    const books = await Book.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select("title authors thumbnail category createdAt");
+
+    return res
+        .status(200)
+        .json(new apiResponse(200, books, "Recently added books fetched successfully"));
+});
+
+export {searchBooksByISBN,addBookToLibrary,getAllBooks,updateBookDetails,deleteBookFromLibrary,updateBookStock,getBookById,getBooksByCategory,searchLibraryBooks,getMostIssuedBooks,getRecentlyAddedBooks};

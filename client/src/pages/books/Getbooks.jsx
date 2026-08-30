@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BookCard from "../../components/cards/Bookcards.jsx";
-import { getAllBooks } from "../../services/book.service.js";
+import { useSearchParams } from "react-router-dom";
+import { searchLibraryBooks,getAllBooks } from "../../services/book.service.js";
 
 const BookCardSkeleton = () => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
@@ -16,6 +17,8 @@ const BookCardSkeleton = () => (
 );
 
 const Getbooks = () => {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q");
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -25,7 +28,9 @@ const Getbooks = () => {
       setIsLoading(true);
       setFailed(false);
       try {
-        const {books:rawBooks} = await getAllBooks();
+        const { books: rawBooks } = query
+          ? await searchLibraryBooks(query)
+          : await getAllBooks();
 
         const bookStats = rawBooks.map((book) => ({
           _id: book._id,
@@ -44,20 +49,23 @@ const Getbooks = () => {
       }
     };
     getBooks();
-  }, []);
+  }, [query]); 
 
   return (
     <div className="min-h-full bg-gray-50">
-      {/* Page header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-            Browse the <span className="text-blue-600">Library</span>
+            {query ? (
+              <>Search results for <span className="text-blue-600">"{query}"</span></>
+            ) : (
+              <>Browse the <span className="text-blue-600">Library</span></>
+            )}
           </h1>
           <p className="mt-2 text-gray-500">
             {isLoading
               ? "Loading the collection..."
-              : `${books.length} book${books.length === 1 ? "" : "s"} available to explore`}
+              : `${books.length} book${books.length === 1 ? "" : "s"} found`}
           </p>
         </div>
       </div>
@@ -65,27 +73,9 @@ const Getbooks = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {failed ? (
           <div className="flex flex-col items-center justify-center text-center py-20 bg-white rounded-xl border border-gray-100 shadow-sm">
-            <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
-              <svg
-                className="w-7 h-7 text-red-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Unable to load books
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">Unable to load books</h3>
             <p className="mt-1 text-sm text-gray-500">
-              Something went wrong while fetching the library. Please try
-              again shortly.
+              Something went wrong while fetching the library. Please try again shortly.
             </p>
           </div>
         ) : isLoading ? (
@@ -102,11 +92,9 @@ const Getbooks = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center text-center py-20 bg-white rounded-xl border border-gray-100 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900">
-              No books found
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">No books found</h3>
             <p className="mt-1 text-sm text-gray-500">
-              The library doesn't have any books yet. Check back soon.
+              {query ? `No results for "${query}". Try a different search.` : "The library doesn't have any books yet."}
             </p>
           </div>
         )}

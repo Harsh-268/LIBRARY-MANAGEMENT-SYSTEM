@@ -19,7 +19,7 @@ export const loginUserSchema = z.object({
 //validation for changeUserPassword controller
 export const changeUserPasswordSchema = z.object({
     body:z.object({
-        currentPassword:z.string().min(6,"Current password must be at least 6 characters long. ").max(100,"current password cannot exceed 100 characters. "),
+        oldPassword:z.string().min(6,"Current password must be at least 6 characters long. ").max(100,"current password cannot exceed 100 characters. "),
         newPassword:z.string().min(6,"New password must be at least 6 characters long. ").max(100,"new password cannot exceed 100 characters. ")
     })
 })

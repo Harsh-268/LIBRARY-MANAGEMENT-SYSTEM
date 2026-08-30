@@ -32,7 +32,7 @@ export const paginate = async ({
             totalPages,
             currentPage:sanitizedPage,
             pageSize:sanitizedLimit,
-            hasnextPage:sanitizedPage<totalPages,
+            hasNextPage:sanitizedPage<totalPages,
             hasPrevPage:sanitizedPage>1
         }
     }

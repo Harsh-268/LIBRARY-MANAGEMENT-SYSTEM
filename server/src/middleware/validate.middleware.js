@@ -24,7 +24,7 @@ export const validate = (schema) => async (req, res, next) => {
         
         // Overwrite the request objects with Zod's cleaned data (like the .toLowerCase() emails){Optional}
         if (parseResult.data.body) req.body = parseResult.data.body;
-        if (parseResult.data.query) req.query = parseResult.data.query;
+        // if (parseResult.data.query) req.query = parseResult.data.query;
         if (parseResult.data.params) req.params = parseResult.data.params;
 
         

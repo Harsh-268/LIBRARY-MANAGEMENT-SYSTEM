@@ -172,9 +172,9 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
 const changeUserPassword = asyncHandler(async(req,res)=>{
 
     const {oldPassword,newPassword}=req.body;
-    if(!oldPassword || !newPassword){
-        throw new apiError(400,"All fields are required")
-    }
+    // if(!oldPassword || !newPassword){
+    //     throw new apiError(400,"All fields are required")
+    // }
     if(oldPassword===newPassword){
         throw new apiError(400,"New password must be different from old password")
     }
@@ -204,9 +204,9 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
 
 const updateUserInfo = asyncHandler(async(req,res)=>{
     const {fullName,email}=req.body
-    if(!fullName || !email){
-        throw new apiError(400,"All fields are required")
-    }
+    // if(!fullName || !email){
+    //     throw new apiError(400,"Atleast one field is required to update")
+    // }
 
     const user=await User.findByIdAndUpdate(
         req.user?._id,

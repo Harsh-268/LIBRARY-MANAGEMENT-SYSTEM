@@ -6,6 +6,7 @@ import {
   RouterProvider,
   Route,
 } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Getbooks from "./pages/books/Getbooks.jsx";
 import BookDetails from "./pages/books/BookDetails.jsx";
 import Login from "./pages/Login.jsx";
@@ -14,8 +15,8 @@ import Layout from "./components/layout/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AdminRoute from "./routes/AdminRoutes.jsx";
-// import MyBooks from "./pages/books/MyBooks.jsx";
-// import Profile from "./pages/Profile.jsx";
+import MyBooks from "./pages/user/MyBooks.jsx";
+import Profile from "./pages/user/Profile.jsx";
 // import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
@@ -30,8 +31,8 @@ const router = createBrowserRouter(
         <Route element={<ProtectedRoute />}>
           <Route path="get-books" element={<Getbooks />} />
           <Route path="books/:bookId" element={<BookDetails />} />
-          {/* <Route path="my-books" element={<MyBooks />} /> */}
-          {/* <Route path="profile" element={<Profile />} /> */}
+          <Route path="my-books" element={<MyBooks />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         {/* Admin Routes */}
@@ -50,6 +51,7 @@ const router = createBrowserRouter(
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
+      <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
       <RouterProvider router={router} />
     </AuthProvider>
   </StrictMode>,
