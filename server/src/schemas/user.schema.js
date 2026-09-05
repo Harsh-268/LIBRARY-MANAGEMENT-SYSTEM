@@ -39,4 +39,21 @@ export const updateUserRoleSchema = z.object({
         role:z.enum(["STUDENT","ADMIN"],{message:"Role must be either 'STUDENT' or 'ADMIN'. "})
     })
 })
+
+// validation for forgotPassword controller
+export const forgotPasswordSchema = z.object({
+    body: z.object({
+        email: z.string().trim().email("Please enter a valid email address.").toLowerCase()
+    })
+})
+
+// validation for resetPassword controller
+export const resetPasswordSchema = z.object({
+    params: z.object({
+        token: z.string().min(1, "Reset token is required")
+    }),
+    body: z.object({
+        newPassword: z.string().min(6, "New password must be at least 6 characters long.").max(100)
+    })
+})
     

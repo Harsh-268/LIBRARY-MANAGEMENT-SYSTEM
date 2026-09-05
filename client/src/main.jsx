@@ -11,6 +11,12 @@ import Getbooks from "./pages/books/Getbooks.jsx";
 import BookDetails from "./pages/books/BookDetails.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import ForgetPassword from "./pages/user/ForgetPassword.jsx";
+import ResetPassword from "./pages/user/ResetPassword.jsx";
+import Contact from "./pages/company/Contact.jsx";
+import PrivacyPolicy from "./pages/company/Privacy.jsx";
+import TermsOfService from "./pages/company/Terms.jsx";
+import AboutUs from "./pages/company/About.jsx";
 import Layout from "./components/layout/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
@@ -44,6 +50,13 @@ const router = createBrowserRouter(
       {/* Paths without Header and Footer */}
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
+      <Route path="forgot-password" element={<ForgetPassword />} />
+      <Route path="reset-password/:token" element={<ResetPassword />} />
+      <Route path="contact" element={<Contact />} />
+      <Route path="privacy" element={<PrivacyPolicy />} />
+      <Route path="terms" element={<TermsOfService />} />
+      <Route path="about-us" element={<AboutUs />} />
+
     </Route>
   ),
 );

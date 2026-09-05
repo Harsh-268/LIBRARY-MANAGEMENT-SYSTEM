@@ -5,11 +5,13 @@ import {
 } from "../services/book.service";
 import { useState, useEffect } from "react";
 import BookCard from "../components/cards/Bookcards.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const Home = () => {
   const [trending, setTrending] = useState([]);
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadHomeData = async () => {
@@ -48,12 +50,13 @@ const Home = () => {
             >
               Browse Library
             </Link>
+            {!user && (
             <Link
               to="/register"
               className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 px-8 py-3 rounded-lg font-semibold transition-colors text-lg"
             >
               Join for Free
-            </Link>
+            </Link>)}
           </div>
         </div>
       </section>
@@ -98,14 +101,15 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {["Fiction", "Sci-Fi", "Mystery", "Biography"].map(
               (genre, index) => (
-                <div
+                <Link
                   key={index}
+                  to={`/get-books?category=${encodeURIComponent(genre)}`}
                   className="bg-gray-50 border border-gray-100 rounded-xl p-8 text-center hover:shadow-md hover:border-blue-100 transition-all cursor-pointer group"
                 >
                   <h3 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
                     {genre}
                   </h3>
-                </div>
+                </Link>
               ),
             )}
           </div>

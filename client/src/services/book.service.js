@@ -39,7 +39,7 @@ export const searchLibraryBooks = async (query, { page, limit } = {}) => {
  * Returns the raw data from the API: { books, metadata }
  */
 export const getBooksByCategory = async (category, { page, limit } = {}) => {
-  const response = await api.get(`/books/category/${category}`, {
+  const response = await api.get(`/books/category/${encodeURIComponent(category)}`, {
     params: { page, limit },
   });
   return response.data.data; // { books, metadata }

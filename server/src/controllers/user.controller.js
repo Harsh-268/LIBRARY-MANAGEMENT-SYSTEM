@@ -3,6 +3,7 @@ import apiError from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import apiResponse from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { paginate } from "../utils/paginate.js";
 
 
@@ -268,6 +269,51 @@ const updateUserRole = asyncHandler(async (req, res) => {
         .status(200)
         .json(new apiResponse(200, updatedUser, "User role updated successfully"));
 });
-const forgetPassword=asyncHandler(async(req,res)=>{})
 
-export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,updateUserRole,forgetPassword };
+const forgotPassword = asyncHandler(async(req,res)=>{
+    const {email} = req.body
+    const user = await User.findOne({email})
+
+    // Don't reveal whether the email exists — same response either way
+    if(!user){
+        return res.status(200).json(new apiResponse(200,{},"If that email is registered, a reset link has been sent"))
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex")
+    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex")
+
+    user.resetPasswordToken = hashedToken
+    user.resetPasswordExpiry = Date.now() + 10 * 60 * 1000 // 10 min
+    await user.save({validateBeforeSave:false})
+
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawToken}`
+    // TODO: send via email service. Logging for now.
+    console.log("Password reset link:", resetUrl)
+
+    return res.status(200).json(new apiResponse(200,{},"If that email is registered, a reset link has been sent"))
+})
+
+const resetPassword = asyncHandler(async(req,res)=>{
+    const {token} = req.params
+    const {newPassword} = req.body
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpiry: {$gt: Date.now()}
+    })
+
+    if(!user){
+        throw new apiError(400,"Reset token is invalid or has expired")
+    }
+
+    user.password = newPassword // pre-save hook hashes it
+    user.resetPasswordToken = undefined
+    user.resetPasswordExpiry = undefined
+    await user.save()
+
+    return res.status(200).json(new apiResponse(200,{},"Password has been reset successfully"))
+})
+
+export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,updateUserRole,forgotPassword,resetPassword };

@@ -19,6 +19,7 @@ const BookCardSkeleton = () => (
 const Getbooks = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q");
+  const category = searchParams.get("category");
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -28,7 +29,9 @@ const Getbooks = () => {
       setIsLoading(true);
       setFailed(false);
       try {
-        const { books: rawBooks } = query
+        const { books: rawBooks } = category
+          ? await getBooksByCategory(category)
+          : query
           ? await searchLibraryBooks(query)
           : await getAllBooks();
 
@@ -49,7 +52,7 @@ const Getbooks = () => {
       }
     };
     getBooks();
-  }, [query]); 
+  }, [query, category]); 
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -58,6 +61,8 @@ const Getbooks = () => {
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
             {query ? (
               <>Search results for <span className="text-blue-600">"{query}"</span></>
+            ) : category ? (
+              <>Books in <span className="text-blue-600">"{category}"</span></>
             ) : (
               <>Browse the <span className="text-blue-600">Library</span></>
             )}

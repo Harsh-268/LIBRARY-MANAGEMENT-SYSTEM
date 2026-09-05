@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../api/axios';
 
 const Header = () => {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
