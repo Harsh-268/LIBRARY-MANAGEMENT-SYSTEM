@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { getBookById } from "../../services/book.service.js";
 
 const BookCard = ({ book }) => {
   // Destructure the book object with safe fallback values

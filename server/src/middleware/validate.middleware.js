@@ -13,7 +13,7 @@ export const validate = (schema) => async (req, res, next) => {
                 success: false,
                 message: "Validation Error",
                 
-                errors: parseResult.error.errors.map(err => ({
+                errors: parseResult.error.issues.map(err => ({
                     field: err.path.join('.'),
                     message: err.message
                 }))

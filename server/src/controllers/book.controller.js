@@ -64,46 +64,61 @@ const searchBooksByISBN = asyncHandler(async (req, res) => {
     if (!isbn || isbn.trim() === "") {
         throw new apiError(400, "ISBN is required");
     }
-    try {
-        const googleURL=`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
-        const response=await axios.get(googleURL);
-        const data=response.data;
 
-        if(!data.items ||data.items.length===0){
-            throw new apiError(404,"No book found with the provided ISBN")
-        }
-
-        const books=data.items.map((item)=>{
-            const info=item.volumeInfo;
-            return{
-            title:info.title,
-            authors:info.authors||["Unknown Author"],
-            description:info.description ||"No description available",
-            thumbnail:info.imageLinks?.thumbnail ||"",
-            category:info.categories ?info.categories[0] :"General",
-            pageCount:info.pageCount,
-            isbn: isbn
-            };
-        })
-
-        return res
-        .status(200)
-        .json(new apiResponse(200,books,"Books fetched successfully"))
-    } catch (error) {
-        // 1. If it's the 404 error we threw above, keep it as a 404!
-        if (error.statusCode === 404 || error.name === "apiError") {
-            throw error; 
-        }
-
-        // 2. Log the REAL error to your MacBook terminal so you can debug it
-        //console.error("API Crash Reason:", error.response?.data || error.message);
-
-        // 3. Throw the generic 500 only for unexpected crashes
-        throw new apiError(500, "Failed to fetch book details from Google Books API");
-    
+    if (!process.env.GOOGLE_BOOKS_API_KEY) {
+        throw new apiError(500, "Google Books API key is not configured on the server");
     }
 
-})
+    try {
+        const googleURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
+        const response = await axios.get(googleURL);
+        const data = response.data;
+
+        if (!data.items || data.items.length === 0) {
+            throw new apiError(404, "No book found with the provided ISBN");
+        }
+
+        const books = data.items.map((item) => {
+            const info = item.volumeInfo;
+            return {
+                title: info.title,
+                authors: info.authors || ["Unknown Author"],
+                description: info.description || "No description available",
+                thumbnail: info.imageLinks?.thumbnail || "",
+                category: info.categories ? info.categories[0] : "General",
+                pageCount: info.pageCount,
+                isbn: isbn
+            };
+        });
+
+        return res
+            .status(200)
+            .json(new apiResponse(200, books, "Books fetched successfully"));
+
+    } catch (error) {
+        if (error.statusCode === 404 || error instanceof apiError) {
+            throw error;
+        }
+
+        const status = error.response?.status;
+        const googleMessage = error.response?.data?.error?.message || error.message;
+
+        console.error("Google Books API error:", status, googleMessage);
+
+        // Quota/rate-limit errors come back as 429 or 403 from Google
+        if (status === 429 || status === 403) {
+            throw new apiError(
+                503,
+                "Book lookup service is temporarily unavailable due to rate limits. Please try again shortly, or enter the book details manually."
+            );
+        }
+
+        throw new apiError(
+            500,
+            `Failed to fetch book details from Google Books API: ${googleMessage}`
+        );
+    }
+});
 
 const addBookToLibrary = asyncHandler(async (req, res) => {
     const { title,isbn, authors,description,thumbnail,category,pageCount,totalCopies } = req.body;
@@ -220,8 +235,7 @@ const getAllBooks = asyncHandler(async (req, res) => {
         model:Book,
         page,
         limit,
-        sort:{createdAt:-1},
-        select:"title authors description thumbnail category"
+        sort:{createdAt:-1}
     })
 
     return res
@@ -256,6 +270,7 @@ const searchLibraryBooks = asyncHandler(async (req,res) => {
         $or:[
             {title:{$regex:q,$options:"i"}},
             {authors:{$regex:q,$options:"i"}},
+            {isbn:{$regex:q,$options:"i"}},
         ]
     }
     const {data:books,metadata}= await paginate({

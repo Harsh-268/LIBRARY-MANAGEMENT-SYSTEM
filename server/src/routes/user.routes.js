@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { registerUser,loginUser, logoutUser, refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,updateUserRole,forgotPassword,resetPassword } from "../controllers/user.controller.js";
+import { registerUser,loginUser, logoutUser, refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,searchStudents,updateUserRole,forgotPassword,resetPassword } from "../controllers/user.controller.js";
 import { verifyJWT,authorizeRoles } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { registerUserSchema, loginUserSchema, changeUserPasswordSchema, updateUserInfoSchema, updateUserRoleSchema,forgotPasswordSchema,resetPasswordSchema } from "../schemas/user.schema.js";
+import { registerUserSchema, loginUserSchema, changeUserPasswordSchema, updateUserInfoSchema, updateUserRoleSchema,forgotPasswordSchema,resetPasswordSchema,searchStudentsSchema } from "../schemas/user.schema.js";
 import { authLimiter } from "../middleware/rateLimiter.middleware.js";
 
     
@@ -26,6 +26,8 @@ router.route("/update-account").patch(verifyJWT,validate(updateUserInfoSchema),u
 router.route("/history").get(verifyJWT,getUserBorrowHistory);
 
 router.route("/all-users").get(verifyJWT,authorizeRoles("ADMIN"),getAllUsers);
+
+router.route("/search-students").get(verifyJWT,authorizeRoles("ADMIN"),validate(searchStudentsSchema),searchStudents);
 
 router.route("/update-role").patch(verifyJWT,authorizeRoles("ADMIN"),validate(updateUserRoleSchema),updateUserRole);
 

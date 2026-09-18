@@ -7,47 +7,67 @@ import {
   Route,
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import Getbooks from "./pages/books/Getbooks.jsx";
-import BookDetails from "./pages/books/BookDetails.jsx";
+
+// Layouts
+import Layout from "./components/layout/Layout.jsx";
+import AdminLayout from "./components/admin/AdminLayout.jsx";
+
+// Route guards
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
+import AdminRoute from "./routes/AdminRoutes.jsx";
+
+// Public pages
+import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+
+
+// User pages (auth required)
+import MyBooks from "./pages/user/MyBooks.jsx";
+import Profile from "./pages/user/Profile.jsx";
 import ForgetPassword from "./pages/user/ForgetPassword.jsx";
 import ResetPassword from "./pages/user/ResetPassword.jsx";
+import Getbooks from "./pages/books/Getbooks.jsx";
+import BookDetails from "./pages/books/BookDetails.jsx";
+
+// Company / legal pages
 import Contact from "./pages/company/Contact.jsx";
 import PrivacyPolicy from "./pages/company/Privacy.jsx";
 import TermsOfService from "./pages/company/Terms.jsx";
 import AboutUs from "./pages/company/About.jsx";
-import Layout from "./components/layout/Layout.jsx";
-import Home from "./pages/Home.jsx";
-import ProtectedRoute from "./routes/ProtectedRoute.jsx";
-import AdminRoute from "./routes/AdminRoutes.jsx";
-import MyBooks from "./pages/user/MyBooks.jsx";
-import Profile from "./pages/user/Profile.jsx";
-// import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+
+// Admin pages
+import Overview from "./pages/admin/Overview.jsx";
+import BookStock from "./pages/admin/BookStock.jsx";
+
 import { AuthProvider } from "./context/AuthContext.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      {/* Paths with standard Header and Footer */}
+      {/* Public site — standard Header + Footer */}
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="get-books" element={<Getbooks />} />
+        <Route path="books/:bookId" element={<BookDetails />} />
 
-        {/* Protected Routes for logged-in users */}
+        {/* Requires login, but still uses the public Header/Footer */}
         <Route element={<ProtectedRoute />}>
-          <Route path="get-books" element={<Getbooks />} />
-          <Route path="books/:bookId" element={<BookDetails />} />
           <Route path="my-books" element={<MyBooks />} />
           <Route path="profile" element={<Profile />} />
         </Route>
+      </Route>
 
-        {/* Admin Routes */}
-        <Route element={<AdminRoute />}>
-          {/* <Route path="admin-dashboard" element={<AdminDashboard />} /> */}
+      {/* Admin dashboard — own sidebar layout, no public Header/Footer */}
+      <Route element={<AdminRoute />}>
+        <Route path="admin" element={<AdminLayout />}>
+          <Route path="overview" element={<Overview />} />
+          <Route path="books" element={<BookStock />} />
+          {/* path="issues", path="transactions", path="books" land here as we build them */}
         </Route>
       </Route>
 
-      {/* Paths without Header and Footer */}
+      {/* Standalone pages — no Header/Footer, no layout */}
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="forgot-password" element={<ForgetPassword />} />
@@ -56,7 +76,6 @@ const router = createBrowserRouter(
       <Route path="privacy" element={<PrivacyPolicy />} />
       <Route path="terms" element={<TermsOfService />} />
       <Route path="about-us" element={<AboutUs />} />
-
     </Route>
   ),
 );

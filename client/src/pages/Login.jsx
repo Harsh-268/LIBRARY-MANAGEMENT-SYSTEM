@@ -36,7 +36,7 @@ export default function Login() {
         toast.success('Successfully signed in!');
   
         if(result.user.role === 'ADMIN') {
-          navigate('/admin-dashboard');
+          navigate('/admin/overview');
         } else {
           navigate('/get-books');
         }

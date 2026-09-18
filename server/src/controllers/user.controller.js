@@ -254,6 +254,24 @@ const getAllUsers = asyncHandler(async (req, res) => {
         .json(new apiResponse(200, { users, metadata }, "All users fetched successfully"));
 });
 
+const searchStudents = asyncHandler(async (req, res) => {
+    const { q } = req.query;
+
+    const students = await User.find({
+        role: "STUDENT",
+        $or: [
+            { fullName: { $regex: q, $options: "i" } },
+            { email: { $regex: q, $options: "i" } }
+        ]
+    })
+    .select("fullName email")
+    .limit(10);
+
+    return res
+        .status(200)
+        .json(new apiResponse(200, students, "Students fetched successfully"));
+});
+
 const updateUserRole = asyncHandler(async (req, res) => {
     const { userId, role } = req.body;
     if (!userId || !role) {
@@ -316,4 +334,4 @@ const resetPassword = asyncHandler(async(req,res)=>{
     return res.status(200).json(new apiResponse(200,{},"Password has been reset successfully"))
 })
 
-export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,updateUserRole,forgotPassword,resetPassword };
+export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserInfo,getUserBorrowHistory,getAllUsers,searchStudents,updateUserRole,forgotPassword,resetPassword };

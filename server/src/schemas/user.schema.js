@@ -24,6 +24,13 @@ export const changeUserPasswordSchema = z.object({
     })
 })
 
+//validation for searchStudents controller
+export const searchStudentsSchema = z.object({
+    query: z.object({
+        q: z.string().trim().min(1, "Search query is required")
+    })
+})
+
 //validation for updateUserInfo controller
 export const updateUserInfoSchema = z.object({
     body:z.object({

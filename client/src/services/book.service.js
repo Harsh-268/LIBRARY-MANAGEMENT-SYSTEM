@@ -56,7 +56,7 @@ export const getBooksByCategory = async (category, { page, limit } = {}) => {
 
 // Search books by ISBN (for admin use)
 export const searchBooksByISBN = async (isbn) => {
-  const response = await api.get(`/books/search-isbn/${isbn}`);
+  const response = await api.get(`/books/search/${isbn}`);
   return response.data.data; // book object
 }
 
@@ -68,7 +68,7 @@ export const addBookToLibrary = async (bookData) => {
 
 //Update book details (for admin use)
 export const updateBookDetails = async (bookId, updatedData) => {
-  const response = await api.put(`/books/update/${bookId}`, updatedData);
+  const response = await api.patch(`/books/update/${bookId}`, updatedData);
   return response.data.data; // updated book object
 }
 
@@ -80,7 +80,7 @@ export const deleteBookFromLibrary = async (bookId) => {
 
 //Update book stock (for admin use)
 export const updateBookStock = async (bookId, changeInCopies) => {
-  const response = await api.put(`/books/update-stock/${bookId}`, {changeInCopies });
+  const response = await api.patch(`/books/update-stock/${bookId}`, {changeInCopies });
   return response.data.data; // updated book object
 }
 
