@@ -5,6 +5,7 @@ import apiResponse from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { paginate } from "../utils/paginate.js";
+import { sendPasswordResetEmail } from "../utils/sendEmail.js";
 
 
 const generateAccessAndRefreshToken =async(userId)=>{
@@ -204,14 +205,18 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
 })
 
 const updateUserInfo = asyncHandler(async(req,res)=>{
-    const {fullName,email}=req.body
-    // if(!fullName || !email){
-    //     throw new apiError(400,"Atleast one field is required to update")
-    // }
+    // Email is intentionally never read here — it is not user-editable.
+    // It's excluded at the schema layer (updateUserInfoSchema strips it),
+    // enforced again here (we simply never touch it), and backstopped by
+    // `immutable: true` on the model as a last line of defense.
+    const {fullName}=req.body
+    if(!fullName){
+        throw new apiError(400,"fullName is required to update")
+    }
 
     const user=await User.findByIdAndUpdate(
         req.user?._id,
-        {$set:{fullName,email}},
+        {$set:{fullName}},
         {new:true}
     ).select("-password")
 
@@ -277,11 +282,20 @@ const updateUserRole = asyncHandler(async (req, res) => {
     if (!userId || !role) {
         throw new apiError(400, "User ID and role are required");
     }
+
+    if (String(userId) === String(req.user._id)) {
+        throw new apiError(400, "You can't change your own role");
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
         userId,
         { $set: { role: role.toUpperCase() } },
         { new: true }
     ).select("-password");
+
+    if (!updatedUser) {
+        throw new apiError(404, "User not found");
+    }
 
     return res
         .status(200)
@@ -305,8 +319,15 @@ const forgotPassword = asyncHandler(async(req,res)=>{
     await user.save({validateBeforeSave:false})
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawToken}`
-    // TODO: send via email service. Logging for now.
-    console.log("Password reset link:", resetUrl)
+
+    try {
+        await sendPasswordResetEmail({ to: user.email, fullName: user.fullName, resetUrl })
+    } catch (error) {
+        // Best-effort, same contract as the contact form: the token is already
+        // saved, so a mail failure shouldn't surface as a failed request —
+        // just log it so it's visible in ops/monitoring.
+        console.error("Failed to send password reset email:", error.message)
+    }
 
     return res.status(200).json(new apiResponse(200,{},"If that email is registered, a reset link has been sent"))
 })

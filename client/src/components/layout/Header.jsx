@@ -65,7 +65,23 @@ const Header = () => {
               Browse Library
             </NavLink>
 
-            {user ? (
+            {user ? ( user.role==='ADMIN'?(
+              <>
+              <NavLink to="/admin/overview" className={navLinkClass}>Admin Dashboard</NavLink>
+              <NavLink to="/profile" className={navLinkClass}>Profile & Settings</NavLink>
+              <div className="border-l border-gray-300 h-6 mx-2 hidden sm:block"></div>
+                <span className="text-sm text-gray-500 hidden sm:block font-medium">
+                  Hi, {user?.fullName || 'Reader'}!
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="ml-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Logout
+                </button>
+              
+              </>
+            ):(
               <>
                 <NavLink to="/my-books" className={navLinkClass}>My Books</NavLink>
                 <NavLink to="/profile" className={navLinkClass}>Profile & Settings</NavLink>
@@ -80,7 +96,7 @@ const Header = () => {
                   Logout
                 </button>
               </>
-            ) : (
+            ) ): (
               <div className="flex items-center space-x-4 ml-4">
                 <Link to="/login" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
                   Log in

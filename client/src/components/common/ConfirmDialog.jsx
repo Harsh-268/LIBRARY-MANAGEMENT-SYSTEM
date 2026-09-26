@@ -1,22 +1,8 @@
 import React from "react";
-import Modal from "./Modal.jsx";
+import Modal from "../common/Modal";
 
-/**
- * Reusable yes/no confirmation dialog, built on top of Modal.
- *
- * <ConfirmDialog
- *   isOpen={!!deletingBook}
- *   onClose={() => setDeletingBook(null)}
- *   onConfirm={handleDeleteConfirm}
- *   title="Delete this book?"
- *   message="This can't be undone."
- *   confirmLabel="Delete"
- *   danger
- *   isLoading={isDeleting}
- * />
- */
 const ConfirmDialog = ({
-  isOpen,
+  isOpen=true,
   onClose,
   onConfirm,
   title = "Are you sure?",
@@ -33,22 +19,22 @@ const ConfirmDialog = ({
       <p className="text-sm text-gray-600 mb-6">{message}</p>
       <div className="flex justify-end gap-3">
         <button
-          type="button"
           onClick={onClose}
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md disabled:opacity-60"
+          className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 disabled:opacity-50"
         >
           {cancelLabel}
         </button>
         <button
-          type="button"
           onClick={onConfirm}
           disabled={isLoading}
-          className={`px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-60 ${
-            danger ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"
+          className={`px-4 py-2 text-sm font-medium rounded-md text-white disabled:opacity-50 ${
+            danger
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-gray-900 hover:bg-gray-800"
           }`}
         >
-          {isLoading ? "Please wait..." : confirmLabel}
+          {isLoading ? "Deleting..." : confirmLabel}
         </button>
       </div>
     </Modal>

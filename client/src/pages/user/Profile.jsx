@@ -16,8 +16,9 @@ const Profile = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   // --- Profile info form state ---
+  // Email is intentionally not part of the editable form state — it is
+  // displayed (from `user.email`) but can never be changed by the user.
   const [fullName, setFullName] = useState(user?.fullName || "");
-  const [email, setEmail] = useState(user?.email || "");
   const [savingProfile, setSavingProfile] = useState(false);
 
   // --- Password form state ---
@@ -34,7 +35,6 @@ const Profile = () => {
   const openProfileModal = () => {
     // reset fields to current values each time it's opened
     setFullName(user?.fullName || "");
-    setEmail(user?.email || "");
     setShowProfileModal(true);
   };
 
@@ -47,14 +47,14 @@ const Profile = () => {
 
   const handleProfileSave = async (e) => {
     e.preventDefault();
-    if (!fullName.trim() || !email.trim()) {
-      toast.error("Name and email can't be empty.");
+    if (!fullName.trim()) {
+      toast.error("Name can't be empty.");
       return;
     }
 
     setSavingProfile(true);
     try {
-      const updatedUser = await updateUserInfo({ fullName: fullName.trim(), email: email.trim() });
+      const updatedUser = await updateUserInfo({ fullName: fullName.trim() });
       setUser(updatedUser);
       toast.success("Profile updated successfully.");
       setShowProfileModal(false);
@@ -195,7 +195,7 @@ const Profile = () => {
       {showProfileModal && (
         <Modal
           title="Edit Personal Information"
-          subtitle="Update your name and email address."
+          subtitle="Update your name. Email can't be changed."
           onClose={() => setShowProfileModal(false)}
         >
           <form onSubmit={handleProfileSave} className="space-y-4">
@@ -220,10 +220,16 @@ const Profile = () => {
               <input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={user?.email || ""}
+                disabled
+                readOnly
+                aria-readonly="true"
+                title="Email address can't be changed"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
               />
+              <p className="text-xs text-gray-400 mt-1">
+                Your email address can't be changed. Contact an administrator if you need it updated.
+              </p>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">

@@ -39,7 +39,9 @@ import AboutUs from "./pages/company/About.jsx";
 // Admin pages
 import Overview from "./pages/admin/Overview.jsx";
 import BookStock from "./pages/admin/BookStock.jsx";
-
+import ManageUsers from "./pages/admin/ManageUsers.jsx";
+import Transactions from "./pages/admin/Transactions.jsx";
+import ActiveIssues from "./pages/admin/ActiveIssues.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
 const router = createBrowserRouter(
@@ -48,12 +50,12 @@ const router = createBrowserRouter(
       {/* Public site — standard Header + Footer */}
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="get-books" element={<Getbooks />} />
         <Route path="books/:bookId" element={<BookDetails />} />
 
         {/* Requires login, but still uses the public Header/Footer */}
         <Route element={<ProtectedRoute />}>
           <Route path="my-books" element={<MyBooks />} />
+          <Route path="get-books" element={<Getbooks />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Route>
@@ -63,7 +65,9 @@ const router = createBrowserRouter(
         <Route path="admin" element={<AdminLayout />}>
           <Route path="overview" element={<Overview />} />
           <Route path="books" element={<BookStock />} />
-          {/* path="issues", path="transactions", path="books" land here as we build them */}
+          <Route path="users" element={<ManageUsers />} />
+          <Route path="issues" element={<ActiveIssues />} />
+          <Route path="transactions" element={<Transactions />} />
         </Route>
       </Route>
 
