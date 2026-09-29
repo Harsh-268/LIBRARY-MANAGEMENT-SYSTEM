@@ -11,20 +11,18 @@ const ManageUsers = () => {
   const { user: currentAdmin } = useAuth();
 
   const [users, setUsers] = useState([]);
-  const [metadata, setMetadata] = useState(null); // null while searching (search isn't paginated)
+  const [metadata, setMetadata] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
-  // user pending a role-change confirmation
-  const [pendingRoleChange, setPendingRoleChange] = useState(null); // { _id, fullName, role }
+  const [pendingRoleChange, setPendingRoleChange] = useState(null);
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
 
-  // --- Fetch the paginated list (default view, no search term) ---
   useEffect(() => {
-    if (searchTerm.trim()) return; // search effect below takes over
+    if (searchTerm.trim()) return;
 
     let ignore = false;
     setIsLoading(true);
@@ -48,7 +46,6 @@ const ManageUsers = () => {
     };
   }, [page, searchTerm]);
 
-  // --- Debounced search ---
   useEffect(() => {
     const term = searchTerm.trim();
     if (!term) {
@@ -64,7 +61,7 @@ const ManageUsers = () => {
         .then((students) => {
           if (ignore) return;
           setUsers(students);
-          setMetadata(null); // search results aren't paginated
+          setMetadata(null);
         })
         .catch((err) => {
           if (ignore) return;
@@ -103,12 +100,12 @@ const ManageUsers = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Manage Users</h1>
-        <p className="text-gray-500">View all accounts and promote or demote between Student and Admin.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Manage Users</h1>
+        <p className="text-gray-500 dark:text-gray-400">View all accounts and promote or demote between Student and Admin.</p>
       </div>
 
       {/* Search */}
-      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
         <input
           type="text"
           value={searchTerm}
@@ -117,20 +114,20 @@ const ManageUsers = () => {
             setPage(1);
           }}
           placeholder="Search students by name or email…"
-          className="w-full max-w-md px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full max-w-md px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         {searchTerm.trim() && (
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
             Search only looks at students, and shows up to 10 matches. Clear the box to see everyone, paginated.
           </p>
         )}
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 text-left text-gray-500">
+            <tr className="border-b border-gray-100 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
               <th className="px-5 py-3 font-medium">Name</th>
               <th className="px-5 py-3 font-medium">Email</th>
               <th className="px-5 py-3 font-medium">Role</th>
@@ -140,7 +137,7 @@ const ManageUsers = () => {
           <tbody>
             {isLoadingAny && (
               <tr>
-                <td colSpan={4} className="px-5 py-6 text-center text-gray-400">
+                <td colSpan={4} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
                   Loading…
                 </td>
               </tr>
@@ -148,7 +145,7 @@ const ManageUsers = () => {
 
             {!isLoadingAny && users.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-5 py-6 text-center text-gray-400">
+                <td colSpan={4} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
                   No users found.
                 </td>
               </tr>
@@ -158,13 +155,15 @@ const ManageUsers = () => {
               users.map((u) => {
                 const isSelf = u._id === currentAdmin?._id;
                 return (
-                  <tr key={u._id} className="border-b border-gray-50 last:border-0">
-                    <td className="px-5 py-3 text-gray-900 font-medium">{u.fullName}</td>
-                    <td className="px-5 py-3 text-gray-600">{u.email}</td>
+                  <tr key={u._id} className="border-b border-gray-50 dark:border-gray-700 last:border-0">
+                    <td className="px-5 py-3 text-gray-900 dark:text-gray-100 font-medium">{u.fullName}</td>
+                    <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{u.email}</td>
                     <td className="px-5 py-3">
                       <span
                         className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
-                          u.role === "ADMIN" ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"
+                          u.role === "ADMIN"
+                            ? "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                         }`}
                       >
                         {u.role}
@@ -176,7 +175,7 @@ const ManageUsers = () => {
                         disabled={isSelf}
                         title={isSelf ? "You can't change your own role" : undefined}
                         onClick={() => setPendingRoleChange(u)}
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800 disabled:text-gray-300 disabled:cursor-not-allowed"
+                        className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 disabled:text-gray-300 dark:disabled:text-gray-600 disabled:cursor-not-allowed"
                       >
                         {u.role === "ADMIN" ? "Demote to Student" : "Promote to Admin"}
                       </button>
@@ -190,12 +189,12 @@ const ManageUsers = () => {
 
       {/* Pagination — hidden while a search term is active */}
       {!searchTerm.trim() && metadata && metadata.totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <button
             type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={!metadata.hasPrevPage}
-            className="px-3 py-1.5 rounded-md border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+            className="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Previous
           </button>
@@ -206,7 +205,7 @@ const ManageUsers = () => {
             type="button"
             onClick={() => setPage((p) => p + 1)}
             disabled={!metadata.hasNextPage}
-            className="px-3 py-1.5 rounded-md border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+            className="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Next
           </button>

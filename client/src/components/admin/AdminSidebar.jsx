@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate,Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../api/axios.js';
+import ThemeToggle from '../common/ThemeToggle.jsx';
 
-// Small inline icons so we don't pull in an icon library just for this
 const IconHome = () => (
   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
     <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />
@@ -68,23 +68,25 @@ const AdminSidebar = () => {
 
   const linkClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-      isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+      isActive
+        ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400'
+        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
     }`;
 
   return (
-    <aside className="w-64 shrink-0 border-r border-gray-200 bg-white flex flex-col h-screen sticky top-0">
+    <aside className="w-64 shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col h-screen sticky top-0">
       {/* Admin identity */}
-      <div className="px-5 py-6 border-b border-gray-100">
+      <div className="px-5 py-6 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-semibold">
+          <div className="w-10 h-10 rounded-full bg-gray-900 dark:bg-gray-700 text-white flex items-center justify-center text-sm font-semibold">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{user?.fullName || 'Admin'}</p>
-            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{user?.fullName || 'Admin'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
           </div>
         </div>
-        <span className="inline-block mt-3 text-[11px] font-semibold uppercase tracking-wide text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+        <span className="inline-block mt-3 text-[11px] font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded">
           Admin
         </span>
       </div>
@@ -99,11 +101,12 @@ const AdminSidebar = () => {
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="px-3 py-4 border-t border-gray-100">  
+      {/* Theme toggle + Logout */}
+      <div className="px-3 py-4 border-t border-gray-100 dark:border-gray-800 space-y-1">
+        <ThemeToggle />
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-red-600 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-red-600 dark:hover:text-red-400 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m6 14 5-5-5-5m5 5H9" />

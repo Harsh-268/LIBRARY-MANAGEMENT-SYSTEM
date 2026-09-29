@@ -20,12 +20,9 @@ const ActiveIssues = () => {
 
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
 
-  // action-in-flight state, keyed by issueId, so only the relevant row shows a spinner
-  const [actionState, setActionState] = useState({}); // { [issueId]: "returning" | "renewing" }
-  const [confirmTarget, setConfirmTarget] = useState(null); // issue object pending return confirmation
+  const [actionState, setActionState] = useState({});
+  const [confirmTarget, setConfirmTarget] = useState(null);
 
-  // guardRef.current flips to true on unmount/param-change so an in-flight
-  // request from a stale render can't overwrite fresher state
   const fetchIssues = useCallback(
     async (guardRef = { current: false }) => {
       setIsLoading(true);
@@ -105,64 +102,64 @@ const ActiveIssues = () => {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Active Issues</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Active Issues</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Books currently checked out across the library.
           </p>
         </div>
         <button
           onClick={() => setIsIssueModalOpen(true)}
-          className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+          className="bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
         >
           + Issue New Book
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-16 text-gray-400">Loading...</div>
+        <div className="text-center py-16 text-gray-400 dark:text-gray-500">Loading...</div>
       ) : failed ? (
-        <div className="text-center py-16 text-red-500">
+        <div className="text-center py-16 text-red-500 dark:text-red-400">
           Unable to load active issues.
         </div>
       ) : issues.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-gray-400 dark:text-gray-500">
           No books are currently issued.
         </div>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Book</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Student</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Issued</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Due</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Renewals</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-600">Actions</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Book</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Student</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Issued</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Due</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Renewals</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-400">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
               {issues.map((issue) => {
                 const busy = actionState[issue._id];
                 return (
-                  <tr key={issue._id} className={issue.isOverDue ? "bg-red-50" : ""}>
-                    <td className="px-4 py-3 text-gray-900">{issue.bookTitle}</td>
+                  <tr key={issue._id} className={issue.isOverDue ? "bg-red-50 dark:bg-red-950/40" : ""}>
+                    <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{issue.bookTitle}</td>
                     <td className="px-4 py-3">
-                      <p className="text-gray-900">{issue.studentName}</p>
-                      <p className="text-xs text-gray-400">{issue.studentEmail}</p>
+                      <p className="text-gray-900 dark:text-gray-100">{issue.studentName}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{issue.studentEmail}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{formatDate(issue.issueDate)}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{formatDate(issue.issueDate)}</td>
                     <td className="px-4 py-3">
-                      <span className={issue.isOverDue ? "text-red-600 font-medium" : "text-gray-500"}>
+                      <span className={issue.isOverDue ? "text-red-600 dark:text-red-400 font-medium" : "text-gray-500 dark:text-gray-400"}>
                         {formatDate(issue.dueDate)}
                       </span>
                       {issue.isOverDue && (
-                        <span className="ml-2 inline-block px-1.5 py-0.5 bg-red-100 text-red-700 text-xs rounded">
+                        <span className="ml-2 inline-block px-1.5 py-0.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-xs rounded">
                           Overdue
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{issue.renewalCount}/2</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{issue.renewalCount}/2</td>
                     <td className="px-4 py-3 text-right space-x-2">
                       <button
                         onClick={() => handleRenew(issue)}
@@ -174,14 +171,14 @@ const ActiveIssues = () => {
                             ? "Renewal limit reached"
                             : ""
                         }
-                        className="px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         {busy === "renewing" ? "Renewing..." : "Renew"}
                       </button>
                       <button
                         onClick={() => setConfirmTarget(issue)}
                         disabled={!!busy}
-                        className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         {busy === "returning" ? "Returning..." : "Return"}
                       </button>
@@ -195,11 +192,11 @@ const ActiveIssues = () => {
       )}
 
       {metadata && metadata.totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+        <div className="flex justify-between items-center mt-4 text-sm text-gray-500 dark:text-gray-400">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={!metadata.hasPrevPage}
-            className="px-3 py-1.5 border border-gray-200 rounded-md disabled:opacity-40"
+            className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-md disabled:opacity-40"
           >
             Previous
           </button>
@@ -209,7 +206,7 @@ const ActiveIssues = () => {
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={!metadata.hasNextPage}
-            className="px-3 py-1.5 border border-gray-200 rounded-md disabled:opacity-40"
+            className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-md disabled:opacity-40"
           >
             Next
           </button>

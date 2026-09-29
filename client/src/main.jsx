@@ -43,6 +43,7 @@ import ManageUsers from "./pages/admin/ManageUsers.jsx";
 import Transactions from "./pages/admin/Transactions.jsx";
 import ActiveIssues from "./pages/admin/ActiveIssues.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -86,9 +87,11 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
+    <ThemeProvider>
     <AuthProvider>
       <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
       <RouterProvider router={router} />
     </AuthProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

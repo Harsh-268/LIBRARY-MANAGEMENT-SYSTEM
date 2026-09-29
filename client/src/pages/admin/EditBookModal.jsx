@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import Modal from "../../components/common/Modal.jsx";
-import {updateBookDetails,}from "../../services/book.service.js";
+import { updateBookDetails } from "../../services/book.service.js";
 
 const EditBookModal = ({ isOpen, onClose, book, onUpdated }) => {
   const [form, setForm] = useState({ title: "", authors: "", description: "", thumbnail: "", category: "" });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Re-sync from the book prop each time the modal opens (or a different
-  // row is clicked) — same pattern as other modal inputs in the app.
   useEffect(() => {
     if (book) {
       setForm({
@@ -50,30 +48,30 @@ const EditBookModal = ({ isOpen, onClose, book, onUpdated }) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Book">
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
-          <input name="title" value={form.title} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" required />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Title</label>
+          <input name="title" value={form.title} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Authors (comma separated)</label>
-          <input name="authors" value={form.authors} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" required />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Authors (comma separated)</label>
+          <input name="authors" value={form.authors} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
-          <input name="category" value={form.category} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Category</label>
+          <input name="category" value={form.category} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Thumbnail URL</label>
-          <input name="thumbnail" value={form.thumbnail} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Thumbnail URL</label>
+          <input name="thumbnail" value={form.thumbnail} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Description</label>
+          <textarea name="description" value={form.description} onChange={handleChange} rows={3} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
         </div>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
             Cancel
           </button>
-          <button type="submit" disabled={isSaving} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-60">
+          <button type="submit" disabled={isSaving} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 rounded-md disabled:opacity-60">
             {isSaving ? "Saving..." : "Save Changes"}
           </button>
         </div>

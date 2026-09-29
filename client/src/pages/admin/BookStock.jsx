@@ -26,7 +26,6 @@ const BookStock = () => {
   const [deletingBook, setDeletingBook] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Debounce the search box before it drives a fetch
   useEffect(() => {
     const timeout = setTimeout(() => {
       setPage(1);
@@ -78,15 +77,6 @@ const BookStock = () => {
     );
   };
 
-  // const adjustStock = async (book, delta) => {
-  //   try {
-  //     const updated = await updateBookStock(book._id, delta);
-  //     patchBookInState(updated);
-  //   } catch (err) {
-  //     toast.error(err.response?.data?.message || "Failed to adjust stock");
-  //   }
-  // };
-
   const handleDeleteConfirm = async () => {
     if (!deletingBook) return;
     setIsDeleting(true);
@@ -105,10 +95,10 @@ const BookStock = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Book Stock</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Book Stock</h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           + Add Book
         </button>
@@ -119,12 +109,12 @@ const BookStock = () => {
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
         placeholder="Search by title, author, or ISBN..."
-        className="w-full max-w-md mb-4 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full max-w-md mb-4 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+          <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 text-xs uppercase">
             <tr>
               <th className="text-left px-5 py-3">Book</th>
               <th className="text-left px-5 py-3">Category</th>
@@ -136,21 +126,21 @@ const BookStock = () => {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-gray-400">
+                <td colSpan={5} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
                   Loading books...
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-red-500">
+                <td colSpan={5} className="px-5 py-6 text-center text-red-500 dark:text-red-400">
                   Unable to load books.
                 </td>
               </tr>
             )}
             {!loading && !error && books.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-gray-400">
+                <td colSpan={5} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
                   No books found.
                 </td>
               </tr>
@@ -158,7 +148,7 @@ const BookStock = () => {
             {!loading &&
               !error &&
               books.map((book) => (
-                <tr key={book._id} className="border-t border-gray-100">
+                <tr key={book._id} className="border-t border-gray-100 dark:border-gray-700">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <img
@@ -167,32 +157,32 @@ const BookStock = () => {
                           "https://via.placeholder.com/40x56?text=—"
                         }
                         alt=""
-                        className="w-8 h-11 object-cover rounded-sm bg-gray-100 flex-shrink-0"
+                        className="w-8 h-11 object-cover rounded-sm bg-gray-100 dark:bg-gray-700 flex-shrink-0"
                       />
                       <div className="min-w-0">
-                        <p className="font-medium text-gray-900 truncate">
+                        <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
                           {book.title}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {(book.authors || []).join(", ")}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-gray-600">
+                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                     {book.category || "—"}
                   </td>
-                  <td className="px-5 py-3 text-gray-500 font-mono text-xs">
+                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
                     {book.isbn}
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
                         {book.availableCopies}/{book.totalCopies}
                       </span>
                       <button
                         onClick={() => setStockBook(book)}
-                        className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                        className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
                       >
                         Edit Stock
                       </button>
@@ -202,7 +192,7 @@ const BookStock = () => {
                     <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => setEditingBook(book)}
-                        className="text-gray-400 hover:text-blue-600"
+                        className="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
                         title="Edit book"
                       >
                         <svg
@@ -221,7 +211,7 @@ const BookStock = () => {
                       </button>
                       <button
                         onClick={() => setDeletingBook(book)}
-                        className="text-gray-400 hover:text-red-600"
+                        className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
                         title="Delete book"
                       >
                         <svg
@@ -246,7 +236,7 @@ const BookStock = () => {
         </table>
 
         {metadata && metadata.totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-sm text-gray-500">
+          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
             <span>
               Page {metadata.currentPage} of {metadata.totalPages} (
               {metadata.totalItems} books)
@@ -255,14 +245,14 @@ const BookStock = () => {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={!metadata.hasPrevPage}
-                className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-40"
+                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-40"
               >
                 Prev
               </button>
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={!metadata.hasNextPage}
-                className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-40"
+                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-40"
               >
                 Next
               </button>

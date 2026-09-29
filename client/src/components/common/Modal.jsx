@@ -33,23 +33,23 @@ const Modal = ({ title, subtitle, onClose, children, maxWidth = "md" }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
+      className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 px-4"
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-xl shadow-lg w-full ${WIDTH_CLASSES[maxWidth] || WIDTH_CLASSES.md} p-6`}
+        className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full ${WIDTH_CLASSES[maxWidth] || WIDTH_CLASSES.md} p-6`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
         <div className="flex items-start justify-between mb-1">
-          <h2 id="modal-title" className="text-lg font-semibold text-gray-900">
+          <h2 id="modal-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             aria-label="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -57,7 +57,7 @@ const Modal = ({ title, subtitle, onClose, children, maxWidth = "md" }) => {
             </svg>
           </button>
         </div>
-        {subtitle && <p className="text-sm text-gray-500 mb-4">{subtitle}</p>}
+        {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{subtitle}</p>}
         {children}
       </div>
     </div>

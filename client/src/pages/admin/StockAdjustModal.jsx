@@ -7,7 +7,6 @@ const StockAdjustModal = ({ isOpen, onClose, book, onUpdated }) => {
   const [newTotal, setNewTotal] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Re-sync the input whenever a new book is passed in / modal reopens
   useEffect(() => {
     if (book) setNewTotal(String(book.totalCopies));
   }, [book]);
@@ -24,7 +23,7 @@ const StockAdjustModal = ({ isOpen, onClose, book, onUpdated }) => {
     parsedTotal >= issuedCopies;
 
   const handleClose = () => {
-    if (isSaving) return; // don't let a backdrop click/Escape cut off an in-flight request
+    if (isSaving) return;
     onClose();
   };
 
@@ -51,18 +50,18 @@ const StockAdjustModal = ({ isOpen, onClose, book, onUpdated }) => {
       maxWidth="sm"
     >
       <div className="space-y-4">
-        <div className="text-sm text-gray-500">
-          Currently <span className="font-medium text-gray-900">{book.availableCopies}</span> of{" "}
-          <span className="font-medium text-gray-900">{book.totalCopies}</span> copies available
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Currently <span className="font-medium text-gray-900 dark:text-gray-100">{book.availableCopies}</span> of{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">{book.totalCopies}</span> copies available
           {issuedCopies > 0 && (
-            <span className="block text-xs text-gray-400 mt-0.5">
+            <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               {issuedCopies} {issuedCopies === 1 ? "copy is" : "copies are"} currently issued out
             </span>
           )}
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
             New total copies
           </label>
           <input
@@ -71,16 +70,16 @@ const StockAdjustModal = ({ isOpen, onClose, book, onUpdated }) => {
             value={newTotal}
             onChange={(e) => setNewTotal(e.target.value)}
             disabled={isSaving}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800"
             autoFocus
           />
           {!isValid && newTotal !== "" && (
-            <p className="mt-1 text-xs text-red-600">
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
               Can't go below {issuedCopies} — that many copies are currently issued out.
             </p>
           )}
           {isValid && delta !== 0 && (
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
               {delta > 0 ? `+${delta}` : delta} compared to current stock
             </p>
           )}
@@ -91,7 +90,7 @@ const StockAdjustModal = ({ isOpen, onClose, book, onUpdated }) => {
             type="button"
             onClick={handleClose}
             disabled={isSaving}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md disabled:opacity-60"
+            className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md disabled:opacity-60"
           >
             Cancel
           </button>
@@ -99,7 +98,7 @@ const StockAdjustModal = ({ isOpen, onClose, book, onUpdated }) => {
             type="button"
             onClick={handleConfirm}
             disabled={isSaving || !isValid || delta === 0}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-60"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 rounded-md disabled:opacity-60"
           >
             {isSaving ? "Updating..." : "Confirm"}
           </button>

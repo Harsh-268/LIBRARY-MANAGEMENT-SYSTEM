@@ -2,29 +2,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
-  // Automatically gets the current year
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 py-10 mt-auto">
+    <footer className="bg-gray-900 dark:bg-black text-gray-300 dark:text-gray-400 py-10 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Top Section: Grid Layout */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          
-          {/* Column 1: Brand & About */}
+
           <div>
-            <h3 className="text-white text-lg font-bold mb-4 tracking-tight">
-              Book<span className="text-blue-500">Store</span>
+            <h3 className="text-white dark:text-gray-100 text-lg font-bold mb-4 tracking-tight">
+              Book<span className="text-blue-500 dark:text-blue-400">Store</span>
             </h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <p className="text-sm text-gray-400 dark:text-gray-500 leading-relaxed">
               Your favorite place to discover new stories, manage your reading history, and explore thousands of books across all genres.
             </p>
           </div>
 
-          {/* Column 2: Quick Links */}
           <div>
-            <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">
+            <h4 className="text-white dark:text-gray-100 font-semibold mb-4 uppercase text-sm tracking-wider">
               Explore
             </h4>
             <ul className="space-y-2 text-sm">
@@ -40,9 +36,8 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 3: Legal & Support */}
           <div>
-            <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">
+            <h4 className="text-white dark:text-gray-100 font-semibold mb-4 uppercase text-sm tracking-wider">
               Support
             </h4>
             <ul className="space-y-2 text-sm">
@@ -60,8 +55,7 @@ const Footer = () => {
 
         </div>
 
-        {/* Bottom Section: Copyright */}
-        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+        <div className="border-t border-gray-800 dark:border-gray-900 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-600">
           <p>
             &copy; {currentYear} BookStore App. All rights reserved.
           </p>

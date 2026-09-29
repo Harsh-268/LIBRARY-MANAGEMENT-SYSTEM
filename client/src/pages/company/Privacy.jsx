@@ -37,14 +37,14 @@ const sections = [
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-white py-16 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-white dark:bg-gray-950 py-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-3">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-3">
           Privacy Policy
         </h1>
-        <p className="text-sm text-gray-400 mb-10">Last updated: September 4, 2026</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500 mb-10">Last updated: September 4, 2026</p>
 
-        <p className="text-gray-600 leading-relaxed mb-10">
+        <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-10">
           This Privacy Policy explains how BookStore ("we", "us", or "our") collects, uses, and
           protects your information when you use our library management system.
         </p>
@@ -52,15 +52,15 @@ export default function Privacy() {
         <div className="space-y-8">
           {sections.map((section) => (
             <div key={section.title}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">{section.title}</h2>
-              <p className="text-gray-600 leading-relaxed text-sm">{section.content}</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{section.title}</h2>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">{section.content}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200 text-sm text-gray-500">
+        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400">
           Questions about this policy? Visit our{' '}
-          <a href="/contact" className="text-blue-600 hover:underline">
+          <a href="/contact" className="text-blue-600 dark:text-blue-400 hover:underline">
             Contact page
           </a>
           .

@@ -30,7 +30,7 @@ export default function About() {
   return (
     <div className="flex flex-col items-center">
       {/* --- HERO SECTION --- */}
-      <section className="w-full bg-gray-900 text-white py-20 px-4 sm:px-6 lg:px-8 text-center">
+      <section className="w-full bg-gray-900 dark:bg-gray-950 text-white py-20 px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
             About <span className="text-blue-500">BookStore</span>
@@ -43,10 +43,10 @@ export default function About() {
       </section>
 
       {/* --- OUR STORY --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
-          <p className="text-gray-600 leading-relaxed">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Our Story</h2>
+          <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
             BookStore started as a simple idea: library systems shouldn't feel like paperwork.
             We set out to build a library management platform that's fast to search, easy to
             navigate, and genuinely pleasant to use — whether you're a student looking for your
@@ -58,31 +58,31 @@ export default function About() {
       </section>
 
       {/* --- STATS --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 border-y border-gray-200">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-950 border-y border-gray-200 dark:border-gray-800">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {stats.map((stat) => (
             <div key={stat.label}>
-              <p className="text-3xl sm:text-4xl font-extrabold text-blue-600 mb-1">
+              <p className="text-3xl sm:text-4xl font-extrabold text-blue-600 dark:text-blue-400 mb-1">
                 {stat.value}
               </p>
-              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* --- VALUES --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">What We Value</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-12">What We Value</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {values.map((value) => (
               <div
                 key={value.title}
-                className="bg-gray-50 border border-gray-100 rounded-xl p-8 hover:shadow-md hover:border-blue-100 transition-all"
+                className="bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-8 hover:shadow-md hover:border-blue-100 dark:hover:border-blue-900 transition-all"
               >
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">{value.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{value.description}</p>
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">{value.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{value.description}</p>
               </div>
             ))}
           </div>
@@ -90,7 +90,7 @@ export default function About() {
       </section>
 
       {/* --- CTA --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-900 text-white text-center">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-900 dark:bg-gray-950 text-white text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">Have questions or feedback?</h2>
           <p className="text-gray-400 mb-8">

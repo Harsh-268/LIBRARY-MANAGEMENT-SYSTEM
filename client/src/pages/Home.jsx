@@ -34,7 +34,7 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center">
       {/* --- HERO SECTION --- */}
-      <section className="w-full bg-gray-900 text-white py-20 px-4 sm:px-6 lg:px-8 text-center">
+      <section className="w-full bg-gray-900 dark:bg-gray-950 text-white py-20 px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
             Discover Your Next <span className="text-blue-500">Great Read</span>
@@ -62,20 +62,20 @@ const Home = () => {
       </section>
 
       {/* --- RECENTLY ADDED BOOKS --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-200">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Our Latest Collection
           </h2>
-          <p className="text-gray-500 mb-10">
+          <p className="text-gray-500 dark:text-gray-400 mb-10">
             Check out our newest additions to the library!
           </p>
 
           <div className="flex flex-wrap justify-center gap-6">
             {loading ? (
-              <p className="text-gray-400 italic">Loading...</p>
+              <p className="text-gray-400 dark:text-gray-500 italic">Loading...</p>
             ) : recent.length === 0 ? (
-              <p className="text-gray-400 italic">No books yet.</p>
+              <p className="text-gray-400 dark:text-gray-500 italic">No books yet.</p>
             ) : (
               recent?.map((book) => <BookCard key={book._id} book={book} />)
             )}
@@ -84,7 +84,7 @@ const Home = () => {
           <div className="mt-12">
             <Link
               to="/get-books"
-              className="text-blue-600 font-semibold hover:text-blue-700 hover:underline"
+              className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
             >
               View all books &rarr;
             </Link>
@@ -93,9 +93,9 @@ const Home = () => {
       </section>
 
       {/* --- FEATURED CATEGORIES --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-950">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-12">
             Popular Genres
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -104,9 +104,9 @@ const Home = () => {
                 <Link
                   key={index}
                   to={`/get-books?category=${encodeURIComponent(genre)}`}
-                  className="bg-gray-50 border border-gray-100 rounded-xl p-8 text-center hover:shadow-md hover:border-blue-100 transition-all cursor-pointer group"
+                  className="bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-8 text-center hover:shadow-md hover:border-blue-100 dark:hover:border-blue-900 transition-all cursor-pointer group"
                 >
-                  <h3 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {genre}
                   </h3>
                 </Link>
@@ -117,20 +117,20 @@ const Home = () => {
       </section>
 
       {/* --- TRENDING BOOKS PREVIEW --- */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-200">
+      <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Trending This Week
           </h2>
-          <p className="text-gray-500 mb-10">
+          <p className="text-gray-500 dark:text-gray-400 mb-10">
             Our community's current favorites.
           </p>
 
           <div className="flex flex-wrap justify-center gap-6">
             {loading ? (
-              <p className="text-gray-400 italic">Loading...</p>
+              <p className="text-gray-400 dark:text-gray-500 italic">Loading...</p>
             ) : trending.length === 0 ? (
-              <p className="text-gray-400 italic">No books yet.</p>
+              <p className="text-gray-400 dark:text-gray-500 italic">No books yet.</p>
             ) : (
               trending?.map((book) => <BookCard key={book._id} book={book} />)
             )}
@@ -139,7 +139,7 @@ const Home = () => {
           <div className="mt-12">
             <Link
               to="/get-books"
-              className="text-blue-600 font-semibold hover:text-blue-700 hover:underline"
+              className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
             >
               View all books &rarr;
             </Link>

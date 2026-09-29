@@ -15,15 +15,12 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSearchingBooks, setIsSearchingBooks] = useState(false);
 
-  // This component is only mounted by the parent while it should be open,
-  // so state resets and the initial student load just happen on mount.
   useEffect(() => {
     IssueService.getStudents()
       .then(setStudents)
       .catch(() => toast.error("Failed to load student list"));
   }, []);
 
-  // Debounced book search
   useEffect(() => {
     if (!bookQuery.trim()) {
       setBookResults([]);
@@ -85,23 +82,23 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
       <form className="space-y-5" onSubmit={handleSubmit}>
         {/* Book search */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
             Book
           </label>
           {selectedBook ? (
-            <div className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2 bg-gray-50">
+            <div className="flex items-center justify-between border border-gray-200 dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-700">
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {selectedBook.title}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {selectedBook.availableCopies} available
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedBook(null)}
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
               >
                 Change
               </button>
@@ -113,12 +110,12 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
                 value={bookQuery}
                 onChange={(e) => setBookQuery(e.target.value)}
                 placeholder="Search by title or author..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {(bookResults.length > 0 || isSearchingBooks) && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
                   {isSearchingBooks && (
-                    <div className="px-3 py-2 text-xs text-gray-400">Searching...</div>
+                    <div className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500">Searching...</div>
                   )}
                   {bookResults.map((book) => (
                     <button
@@ -129,14 +126,14 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
                         setBookResults([]);
                         setBookQuery("");
                       }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex justify-between"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 flex justify-between"
                     >
                       <span>{book.title}</span>
                       <span
                         className={
                           book.availableCopies > 0
-                            ? "text-green-600 text-xs"
-                            : "text-red-500 text-xs"
+                            ? "text-green-600 dark:text-green-400 text-xs"
+                            : "text-red-500 dark:text-red-400 text-xs"
                         }
                       >
                         {book.availableCopies} left
@@ -151,21 +148,21 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
 
         {/* Student search */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
             Student
           </label>
           {selectedStudent ? (
-            <div className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2 bg-gray-50">
+            <div className="flex items-center justify-between border border-gray-200 dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-700">
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {selectedStudent.fullName}
                 </p>
-                <p className="text-xs text-gray-500">{selectedStudent.email}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{selectedStudent.email}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedStudent(null)}
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
               >
                 Change
               </button>
@@ -177,10 +174,10 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
                 value={studentQuery}
                 onChange={(e) => setStudentQuery(e.target.value)}
                 placeholder="Search by name or email..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {studentQuery.trim() && filteredStudents.length > 0 && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
                   {filteredStudents.map((student) => (
                     <button
                       type="button"
@@ -189,10 +186,10 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
                         setSelectedStudent(student);
                         setStudentQuery("");
                       }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       <p>{student.fullName}</p>
-                      <p className="text-xs text-gray-400">{student.email}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{student.email}</p>
                     </button>
                   ))}
                 </div>
@@ -205,14 +202,14 @@ const IssueBookModal = ({ onClose, onSuccess }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800"
+            className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting || !selectedBook || !selectedStudent}
-            className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white text-sm font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Issuing..." : "Issue Book"}
           </button>

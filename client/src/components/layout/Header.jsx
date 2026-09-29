@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../api/axios';
+import ThemeToggle from '../common/ThemeToggle.jsx';
 
 const Header = () => {
   const { user, setUser } = useAuth();
@@ -27,17 +28,17 @@ const Header = () => {
 
   const navLinkClass = ({ isActive }) =>
     isActive
-      ? "text-blue-600 font-semibold"
-      : "text-gray-600 hover:text-blue-600 transition-colors duration-200";
+      ? "text-blue-600 dark:text-blue-400 font-semibold"
+      : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200";
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-900 shadow-sm dark:shadow-none dark:border-b dark:border-gray-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-4">
 
           <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-gray-900 tracking-tight">
-              Book<span className="text-blue-600">Store</span>
+            <Link to="/" className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+              Book<span className="text-blue-600 dark:text-blue-400">Store</span>
             </Link>
           </div>
 
@@ -49,11 +50,11 @@ const Header = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by title or author..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
               >
                 Search
               </button>
@@ -69,13 +70,14 @@ const Header = () => {
               <>
               <NavLink to="/admin/overview" className={navLinkClass}>Admin Dashboard</NavLink>
               <NavLink to="/profile" className={navLinkClass}>Profile & Settings</NavLink>
-              <div className="border-l border-gray-300 h-6 mx-2 hidden sm:block"></div>
-                <span className="text-sm text-gray-500 hidden sm:block font-medium">
+              <div className="border-l border-gray-300 dark:border-gray-700 h-6 mx-2 hidden sm:block"></div>
+                <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block font-medium">
                   Hi, {user?.fullName || 'Reader'}!
                 </span>
+                <ThemeToggle />
                 <button
                   onClick={handleLogout}
-                  className="ml-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+                  className="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
                   Logout
                 </button>
@@ -85,23 +87,25 @@ const Header = () => {
               <>
                 <NavLink to="/my-books" className={navLinkClass}>My Books</NavLink>
                 <NavLink to="/profile" className={navLinkClass}>Profile & Settings</NavLink>
-                <div className="border-l border-gray-300 h-6 mx-2 hidden sm:block"></div>
-                <span className="text-sm text-gray-500 hidden sm:block font-medium">
+                <div className="border-l border-gray-300 dark:border-gray-700 h-6 mx-2 hidden sm:block"></div>
+                <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block font-medium">
                   Hi, {user?.fullName || 'Reader'}!
                 </span>
+                <ThemeToggle />
                 <button
                   onClick={handleLogout}
-                  className="ml-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+                  className="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
                   Logout
                 </button>
               </>
             ) ): (
               <div className="flex items-center space-x-4 ml-4">
-                <Link to="/login" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+                <ThemeToggle />
+                <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
                   Log in
                 </Link>
-                <Link to="/register" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+                <Link to="/register" className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
                   Sign up
                 </Link>
               </div>
@@ -117,11 +121,11 @@ const Header = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by title or author..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-full"
+              className="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-full"
             >
               Search
             </button>
