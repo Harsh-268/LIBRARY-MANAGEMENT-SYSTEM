@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
 import {
   getMyActiveIssues,
   getMyHistory,
@@ -61,6 +60,8 @@ const getFineStatusBadge = (record) => {
   return { label: labels[status] || "—", style: styles[status] || styles.NONE };
 };
 
+const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : "—");
+
 const TABS = [
   { key: "active", label: "Active Issues" },
   { key: "history", label: "History" },
@@ -120,15 +121,15 @@ const MyBooks = () => {
   }, [tab, page, fetchHistory]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">My Books</h1>
-      <p className="text-gray-500 dark:text-gray-400 mb-6">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">My Books</h1>
+      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">
         Track what you've borrowed and your reading history.
       </p>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-        <nav className="flex space-x-8">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-5 sm:mb-6">
+        <nav className="flex space-x-6 sm:space-x-8">
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -162,7 +163,6 @@ const MyBooks = () => {
           error={historyError}
           history={history}
           metadata={metadata}
-          page={page}
           setPage={setPage}
         />
       )}
@@ -173,7 +173,7 @@ const MyBooks = () => {
 const ActiveIssuesSection = ({ loading, error, issues }) => {
   if (loading) {
     return (
-      <div className="text-gray-400 dark:text-gray-500 py-12 text-center">
+      <div className="text-gray-400 dark:text-gray-500 py-10 sm:py-12 text-center">
         Loading your active issues...
       </div>
     );
@@ -181,7 +181,7 @@ const ActiveIssuesSection = ({ loading, error, issues }) => {
 
   if (error) {
     return (
-      <div className="text-red-500 dark:text-red-400 py-12 text-center">
+      <div className="text-red-500 dark:text-red-400 py-10 sm:py-12 text-center">
         Couldn't load your active issues. Please try again later.
       </div>
     );
@@ -189,7 +189,7 @@ const ActiveIssuesSection = ({ loading, error, issues }) => {
 
   if (issues.length === 0) {
     return (
-      <div className="text-center py-16 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+      <div className="text-center px-4 py-12 sm:py-16 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
         <p className="text-gray-500 dark:text-gray-400 mb-4">
           You don't have any books checked out right now.
         </p>
@@ -204,21 +204,21 @@ const ActiveIssuesSection = ({ loading, error, issues }) => {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
       {issues.map((issue) => {
         const due = getDueStatus(issue.dueDate);
         return (
           <div
             key={issue._id}
-            className="flex gap-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 shadow-sm"
+            className="flex gap-3 sm:gap-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 sm:p-4 shadow-sm"
           >
             <img
               src={issue.book?.thumbnail || FALLBACK_THUMB}
               alt={issue.book?.title || "Book cover"}
-              className="w-16 h-24 object-cover rounded-md flex-shrink-0"
+              className="w-14 h-20 sm:w-16 sm:h-24 object-cover rounded-md flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 break-words">
                 {issue.book?.title || "Untitled"}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-2">
@@ -243,31 +243,24 @@ const ActiveIssuesSection = ({ loading, error, issues }) => {
   );
 };
 
-const HistorySection = ({
-  loading,
-  error,
-  history,
-  metadata,
-  page,
-  setPage,
-}) => {
+const HistorySection = ({ loading, error, history, metadata, setPage }) => {
   if (loading) {
     return (
-      <div className="text-gray-400 dark:text-gray-500 py-12 text-center">
+      <div className="text-gray-400 dark:text-gray-500 py-10 sm:py-12 text-center">
         Loading your history...
       </div>
     );
   }
   if (error) {
     return (
-      <div className="text-red-500 dark:text-red-400 py-12 text-center">
+      <div className="text-red-500 dark:text-red-400 py-10 sm:py-12 text-center">
         Couldn't load your borrowing history. Please try again later.
       </div>
     );
   }
   if (history.length === 0) {
     return (
-      <div className="text-center py-16 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+      <div className="text-center px-4 py-12 sm:py-16 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
         <p className="text-gray-500 dark:text-gray-400">You haven't returned any books yet.</p>
       </div>
     );
@@ -275,7 +268,8 @@ const HistorySection = ({
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+      {/* Desktop / tablet: table */}
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
         <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
@@ -307,7 +301,7 @@ const HistorySection = ({
                       <img
                         src={record.book?.thumbnail || FALLBACK_THUMB}
                         alt={record.book?.title || "Book cover"}
-                        className="w-10 h-14 object-cover rounded"
+                        className="w-10 h-14 object-cover rounded flex-shrink-0"
                       />
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -319,15 +313,11 @@ const HistorySection = ({
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    {record.issueDate
-                      ? new Date(record.issueDate).toLocaleDateString()
-                      : "—"}
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {formatDate(record.issueDate)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    {record.returnDate
-                      ? new Date(record.returnDate).toLocaleDateString()
-                      : "—"}
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {formatDate(record.returnDate)}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -348,6 +338,61 @@ const HistorySection = ({
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile: cards */}
+      <div className="md:hidden space-y-3">
+        {history.map((record) => {
+          const fineBadge = getFineBadge(record);
+          const statusBadge = getFineStatusBadge(record);
+          return (
+            <div
+              key={record._id}
+              className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 shadow-sm"
+            >
+              <div className="flex gap-3">
+                <img
+                  src={record.book?.thumbnail || FALLBACK_THUMB}
+                  alt={record.book?.title || "Book cover"}
+                  className="w-12 h-16 object-cover rounded flex-shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 break-words">
+                    {record.book?.title || "Untitled"}
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                    {record.book?.authors?.join(", ")}
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span
+                      className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${fineBadge.style}`}
+                    >
+                      {fineBadge.label}
+                    </span>
+                    {record.fineStatus && record.fineStatus !== "NONE" && (
+                      <span
+                        className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${statusBadge.style}`}
+                      >
+                        {statusBadge.label}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <dl className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <dt className="text-gray-400 dark:text-gray-500">Issued</dt>
+                  <dd className="mt-0.5 text-gray-700 dark:text-gray-300">{formatDate(record.issueDate)}</dd>
+                </div>
+                <div>
+                  <dt className="text-gray-400 dark:text-gray-500">Returned</dt>
+                  <dd className="mt-0.5 text-gray-700 dark:text-gray-300">{formatDate(record.returnDate)}</dd>
+                </div>
+              </dl>
+            </div>
+          );
+        })}
       </div>
 
       {metadata && metadata.totalPages > 1 && (
@@ -374,4 +419,5 @@ const HistorySection = ({
     </div>
   );
 };
+
 export default MyBooks;

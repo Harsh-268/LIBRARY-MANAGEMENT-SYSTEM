@@ -338,6 +338,7 @@ const getMostIssuedBooks = asyncHandler(async (req, res) => {
                 title: "$book.title",
                 authors: "$book.authors",
                 thumbnail: "$book.thumbnail",
+                description: "$book.description",
                 category: "$book.category",
                 issueCount: 1
             }
@@ -354,7 +355,7 @@ const getRecentlyAddedBooks = asyncHandler(async (req, res) => {
     const books = await Book.find()
         .sort({ createdAt: -1 })
         .limit(5)
-        .select("title authors thumbnail category createdAt");
+        .select("title authors thumbnail description category createdAt");
 
     return res
         .status(200)

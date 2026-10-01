@@ -98,58 +98,91 @@ const ActiveIssues = () => {
     }
   };
 
+  // Renew / Return buttons, shared by the table row and the mobile card.
+  // `block` makes them stretch to fill the card width on mobile.
+  const renderActions = (issue, block = false) => {
+    const busy = actionState[issue._id];
+    const size = block ? "flex-1 py-2" : "py-1.5";
+    return (
+      <>
+        <button
+          onClick={() => handleRenew(issue)}
+          disabled={!!busy || issue.renewalCount >= 2 || issue.isOverDue}
+          title={
+            issue.isOverDue
+              ? "Cannot renew an overdue book"
+              : issue.renewalCount >= 2
+              ? "Renewal limit reached"
+              : ""
+          }
+          className={`${size} px-3 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed`}
+        >
+          {busy === "renewing" ? "Renewing..." : "Renew"}
+        </button>
+        <button
+          onClick={() => setConfirmTarget(issue)}
+          disabled={!!busy}
+          className={`${size} px-3 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed`}
+        >
+          {busy === "returning" ? "Returning..." : "Return"}
+        </button>
+      </>
+    );
+  };
+
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 sm:mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Active Issues</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Active Issues</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Books currently checked out across the library.
           </p>
         </div>
         <button
           onClick={() => setIsIssueModalOpen(true)}
-          className="bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
+          className="w-full sm:w-auto bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
         >
           + Issue New Book
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-16 text-gray-400 dark:text-gray-500">Loading...</div>
+        <div className="text-center py-12 sm:py-16 text-gray-400 dark:text-gray-500">Loading...</div>
       ) : failed ? (
-        <div className="text-center py-16 text-red-500 dark:text-red-400">
+        <div className="text-center py-12 sm:py-16 text-red-500 dark:text-red-400">
           Unable to load active issues.
         </div>
       ) : issues.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 dark:text-gray-500">
+        <div className="text-center py-12 sm:py-16 text-gray-400 dark:text-gray-500">
           No books are currently issued.
         </div>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Book</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Student</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Issued</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Due</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Renewals</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-400">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
-              {issues.map((issue) => {
-                const busy = actionState[issue._id];
-                return (
+        <>
+          {/* Desktop / tablet: table */}
+          <div className="hidden md:block overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+              <thead className="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Book</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Student</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Issued</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Due</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Renewals</th>
+                  <th className="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-400">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
+                {issues.map((issue) => (
                   <tr key={issue._id} className={issue.isOverDue ? "bg-red-50 dark:bg-red-950/40" : ""}>
                     <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{issue.bookTitle}</td>
                     <td className="px-4 py-3">
                       <p className="text-gray-900 dark:text-gray-100">{issue.studentName}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500">{issue.studentEmail}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{formatDate(issue.issueDate)}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{formatDate(issue.issueDate)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <span className={issue.isOverDue ? "text-red-600 dark:text-red-400 font-medium" : "text-gray-500 dark:text-gray-400"}>
                         {formatDate(issue.dueDate)}
                       </span>
@@ -160,35 +193,62 @@ const ActiveIssues = () => {
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{issue.renewalCount}/2</td>
-                    <td className="px-4 py-3 text-right space-x-2">
-                      <button
-                        onClick={() => handleRenew(issue)}
-                        disabled={!!busy || issue.renewalCount >= 2 || issue.isOverDue}
-                        title={
-                          issue.isOverDue
-                            ? "Cannot renew an overdue book"
-                            : issue.renewalCount >= 2
-                            ? "Renewal limit reached"
-                            : ""
-                        }
-                        className="px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        {busy === "renewing" ? "Renewing..." : "Renew"}
-                      </button>
-                      <button
-                        onClick={() => setConfirmTarget(issue)}
-                        disabled={!!busy}
-                        className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        {busy === "returning" ? "Returning..." : "Return"}
-                      </button>
+                    <td className="px-4 py-3 text-right whitespace-nowrap space-x-2">
+                      {renderActions(issue)}
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile: cards */}
+          <div className="md:hidden space-y-3">
+            {issues.map((issue) => (
+              <div
+                key={issue._id}
+                className={`rounded-xl border p-4 ${
+                  issue.isOverDue
+                    ? "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900"
+                    : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-medium text-gray-900 dark:text-gray-100 break-words min-w-0">
+                    {issue.bookTitle}
+                  </p>
+                  {issue.isOverDue && (
+                    <span className="shrink-0 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-xs rounded">
+                      Overdue
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-1 text-sm text-gray-700 dark:text-gray-300 truncate">{issue.studentName}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{issue.studentEmail}</p>
+
+                <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <dt className="text-gray-400 dark:text-gray-500">Issued</dt>
+                    <dd className="mt-0.5 text-gray-700 dark:text-gray-300">{formatDate(issue.issueDate)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-400 dark:text-gray-500">Due</dt>
+                    <dd className={`mt-0.5 ${issue.isOverDue ? "text-red-600 dark:text-red-400 font-medium" : "text-gray-700 dark:text-gray-300"}`}>
+                      {formatDate(issue.dueDate)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-400 dark:text-gray-500">Renewals</dt>
+                    <dd className="mt-0.5 text-gray-700 dark:text-gray-300">{issue.renewalCount}/2</dd>
+                  </div>
+                </dl>
+
+                <div className="mt-4 flex gap-2">{renderActions(issue, true)}</div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {metadata && metadata.totalPages > 1 && (

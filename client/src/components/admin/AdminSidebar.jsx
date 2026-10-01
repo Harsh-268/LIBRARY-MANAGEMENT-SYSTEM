@@ -44,7 +44,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Go to Site', icon: IconExternal },
 ];
 
-const AdminSidebar = () => {
+const AdminSidebar = ({open=false,onClose=()=>{}}) => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -74,7 +74,17 @@ const AdminSidebar = () => {
     }`;
 
   return (
-    <aside className="w-64 shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col h-screen sticky top-0">
+    <>
+
+    {/* Backdrop (mobile only) */}
+      {open && <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={onClose} />}
+
+
+    <aside className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 transform transition-transform duration-200
+          lg:sticky lg:top-0 lg:translate-x-0 lg:z-auto
+          ${open ? 'translate-x-0' : '-translate-x-full'}
+          border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col h-screen`}
+      >
       {/* Admin identity */}
       <div className="px-5 py-6 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-3">
@@ -115,6 +125,7 @@ const AdminSidebar = () => {
         </button>
       </div>
     </aside>
+    </>
   );
 };
 

@@ -6,7 +6,7 @@ import {
   RouterProvider,
   Route,
 } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import ResponsiveToaster from "./components/common/ResponsiveToaster.jsx";
 
 // Layouts
 import Layout from "./components/layout/Layout.jsx";
@@ -51,11 +51,11 @@ const router = createBrowserRouter(
       {/* Public site — standard Header + Footer */}
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="books/:bookId" element={<BookDetails />} />
 
         {/* Requires login, but still uses the public Header/Footer */}
         <Route element={<ProtectedRoute />}>
           <Route path="my-books" element={<MyBooks />} />
+          <Route path="books/:bookId" element={<BookDetails />} />
           <Route path="get-books" element={<Getbooks />} />
           <Route path="profile" element={<Profile />} />
         </Route>
@@ -89,7 +89,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
     <AuthProvider>
-      <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+      <ResponsiveToaster/>
       <RouterProvider router={router} />
     </AuthProvider>
     </ThemeProvider>

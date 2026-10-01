@@ -7,6 +7,13 @@ import ConfirmDialog from "../../components/common/ConfirmDialog.jsx";
 
 const PAGE_SIZE = 10;
 
+const roleBadgeClass = (role) =>
+  `inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+    role === "ADMIN"
+      ? "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
+      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+  }`;
+
 const ManageUsers = () => {
   const { user: currentAdmin } = useAuth();
 
@@ -97,15 +104,20 @@ const ManageUsers = () => {
 
   const isLoadingAny = isLoading || isSearching;
 
+  const stateBoxClass =
+    "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm px-5 py-10 text-center text-sm text-gray-400 dark:text-gray-500";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Manage Users</h1>
-        <p className="text-gray-500 dark:text-gray-400">View all accounts and promote or demote between Student and Admin.</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Manage Users</h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+          View all accounts and promote or demote between Student and Admin.
+        </p>
       </div>
 
       {/* Search */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 sm:p-4 shadow-sm">
         <input
           type="text"
           value={searchTerm}
@@ -114,7 +126,7 @@ const ManageUsers = () => {
             setPage(1);
           }}
           placeholder="Search students by name or email…"
-          className="w-full max-w-md px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full sm:max-w-md px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         {searchTerm.trim() && (
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
@@ -123,69 +135,88 @@ const ManageUsers = () => {
         )}
       </div>
 
-      {/* Table */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
-              <th className="px-5 py-3 font-medium">Name</th>
-              <th className="px-5 py-3 font-medium">Email</th>
-              <th className="px-5 py-3 font-medium">Role</th>
-              <th className="px-5 py-3 font-medium text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoadingAny && (
-              <tr>
-                <td colSpan={4} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
-                  Loading…
-                </td>
-              </tr>
-            )}
-
-            {!isLoadingAny && users.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
-                  No users found.
-                </td>
-              </tr>
-            )}
-
-            {!isLoadingAny &&
-              users.map((u) => {
-                const isSelf = u._id === currentAdmin?._id;
-                return (
-                  <tr key={u._id} className="border-b border-gray-50 dark:border-gray-700 last:border-0">
-                    <td className="px-5 py-3 text-gray-900 dark:text-gray-100 font-medium">{u.fullName}</td>
-                    <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{u.email}</td>
-                    <td className="px-5 py-3">
-                      <span
-                        className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
-                          u.role === "ADMIN"
-                            ? "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
-                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                        }`}
-                      >
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      <button
-                        type="button"
-                        disabled={isSelf}
-                        title={isSelf ? "You can't change your own role" : undefined}
-                        onClick={() => setPendingRoleChange(u)}
-                        className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 disabled:text-gray-300 dark:disabled:text-gray-600 disabled:cursor-not-allowed"
-                      >
-                        {u.role === "ADMIN" ? "Demote to Student" : "Promote to Admin"}
-                      </button>
-                    </td>
+      {isLoadingAny ? (
+        <div className={stateBoxClass}>Loading…</div>
+      ) : users.length === 0 ? (
+        <div className={stateBoxClass}>No users found.</div>
+      ) : (
+        <>
+          {/* Desktop / tablet: table */}
+          <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
+                    <th className="px-5 py-3 font-medium">Name</th>
+                    <th className="px-5 py-3 font-medium">Email</th>
+                    <th className="px-5 py-3 font-medium">Role</th>
+                    <th className="px-5 py-3 font-medium text-right">Action</th>
                   </tr>
-                );
-              })}
-          </tbody>
-        </table>
-      </div>
+                </thead>
+                <tbody>
+                  {users.map((u) => {
+                    const isSelf = u._id === currentAdmin?._id;
+                    return (
+                      <tr key={u._id} className="border-b border-gray-50 dark:border-gray-700 last:border-0">
+                        <td className="px-5 py-3 text-gray-900 dark:text-gray-100 font-medium">{u.fullName}</td>
+                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{u.email}</td>
+                        <td className="px-5 py-3">
+                          <span className={roleBadgeClass(u.role)}>{u.role}</span>
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          <button
+                            type="button"
+                            disabled={isSelf}
+                            title={isSelf ? "You can't change your own role" : undefined}
+                            onClick={() => setPendingRoleChange(u)}
+                            className="text-sm font-medium whitespace-nowrap text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 disabled:text-gray-300 dark:disabled:text-gray-600 disabled:cursor-not-allowed"
+                          >
+                            {u.role === "ADMIN" ? "Demote to Student" : "Promote to Admin"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile: cards */}
+          <div className="md:hidden space-y-3">
+            {users.map((u) => {
+              const isSelf = u._id === currentAdmin?._id;
+              return (
+                <div
+                  key={u._id}
+                  className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{u.fullName}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{u.email}</p>
+                    </div>
+                    <span className={`shrink-0 ${roleBadgeClass(u.role)}`}>{u.role}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isSelf}
+                    onClick={() => setPendingRoleChange(u)}
+                    className="mt-3 w-full py-2 rounded-md border border-gray-200 dark:border-gray-600 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:text-gray-300 dark:disabled:text-gray-600 disabled:cursor-not-allowed"
+                  >
+                    {isSelf
+                      ? "This is you"
+                      : u.role === "ADMIN"
+                      ? "Demote to Student"
+                      : "Promote to Admin"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Pagination — hidden while a search term is active */}
       {!searchTerm.trim() && metadata && metadata.totalPages > 1 && (

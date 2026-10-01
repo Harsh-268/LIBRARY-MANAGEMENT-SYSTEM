@@ -3,13 +3,32 @@ import toast from "react-hot-toast";
 import {
   searchLibraryBooks,
   getAllBooks,
-  updateBookStock,
   deleteBookFromLibrary,
 } from "../../services/book.service.js";
 import EditBookModal from "../admin/EditBookModal.jsx";
 import StockAdjustModal from "../admin/StockAdjustModal.jsx";
 import ConfirmDialog from "../../components/common/ConfirmDialog.jsx";
 import AddBookModal from "../../components/admin/AddBookModal.jsx";
+
+const IconEdit = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M16.862 4.487 18.55 2.8a2.06 2.06 0 1 1 2.914 2.914l-1.688 1.688m-3.914-1.913L4.72 16.63a2 2 0 0 0-.53.96l-.77 3.36a.5.5 0 0 0 .6.6l3.36-.77a2 2 0 0 0 .96-.53L19.487 8.401m-3.914-1.913 3.914 1.913"
+    />
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 7h12M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2m-8 0 .8 12a2 2 0 0 0 2 1.9h4.4a2 2 0 0 0 2-1.9L18 7"
+    />
+  </svg>
+);
 
 const BookStock = () => {
   const [books, setBooks] = useState([]);
@@ -92,13 +111,44 @@ const BookStock = () => {
     }
   };
 
+  const showPagination = metadata && metadata.totalPages > 1;
+
+  const paginationControls = showPagination && (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+      <span>
+        Page {metadata.currentPage} of {metadata.totalPages} (
+        {metadata.totalItems} books)
+      </span>
+      <div className="flex gap-2">
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={!metadata.hasPrevPage}
+          className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-40"
+        >
+          Prev
+        </button>
+        <button
+          onClick={() => setPage((p) => p + 1)}
+          disabled={!metadata.hasNextPage}
+          className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-40"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+
+  const stateBoxClass =
+    "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-5 py-10 text-center text-sm";
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Book Stock</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Book Stock</h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="shrink-0 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           + Add Book
         </button>
@@ -109,157 +159,168 @@ const BookStock = () => {
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
         placeholder="Search by title, author, or ISBN..."
-        className="w-full max-w-md mb-4 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full sm:max-w-md mb-4 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 text-xs uppercase">
-            <tr>
-              <th className="text-left px-5 py-3">Book</th>
-              <th className="text-left px-5 py-3">Category</th>
-              <th className="text-left px-5 py-3">ISBN</th>
-              <th className="text-left px-5 py-3">Stock</th>
-              <th className="text-right px-5 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
-                  Loading books...
-                </td>
-              </tr>
-            )}
-            {!loading && error && (
-              <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-red-500 dark:text-red-400">
-                  Unable to load books.
-                </td>
-              </tr>
-            )}
-            {!loading && !error && books.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-gray-400 dark:text-gray-500">
-                  No books found.
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              !error &&
-              books.map((book) => (
-                <tr key={book._id} className="border-t border-gray-100 dark:border-gray-700">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={
-                          book.thumbnail ||
-                          "https://via.placeholder.com/40x56?text=—"
-                        }
-                        alt=""
-                        className="w-8 h-11 object-cover rounded-sm bg-gray-100 dark:bg-gray-700 flex-shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {book.title}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                          {(book.authors || []).join(", ")}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
-                    {book.category || "—"}
-                  </td>
-                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
-                    {book.isbn}
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {book.availableCopies}/{book.totalCopies}
-                      </span>
-                      <button
-                        onClick={() => setStockBook(book)}
-                        className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
-                      >
-                        Edit Stock
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-3">
-                      <button
-                        onClick={() => setEditingBook(book)}
-                        className="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
-                        title="Edit book"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M16.862 4.487 18.55 2.8a2.06 2.06 0 1 1 2.914 2.914l-1.688 1.688m-3.914-1.913L4.72 16.63a2 2 0 0 0-.53.96l-.77 3.36a.5.5 0 0 0 .6.6l3.36-.77a2 2 0 0 0 .96-.53L19.487 8.401m-3.914-1.913 3.914 1.913"
+      {loading ? (
+        <div className={`${stateBoxClass} text-gray-400 dark:text-gray-500`}>Loading books...</div>
+      ) : error ? (
+        <div className={`${stateBoxClass} text-red-500 dark:text-red-400`}>Unable to load books.</div>
+      ) : books.length === 0 ? (
+        <div className={`${stateBoxClass} text-gray-400 dark:text-gray-500`}>No books found.</div>
+      ) : (
+        <>
+          {/* Desktop / tablet: table */}
+          <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 text-xs uppercase">
+                  <tr>
+                    <th className="text-left px-5 py-3">Book</th>
+                    <th className="text-left px-5 py-3">Category</th>
+                    <th className="text-left px-5 py-3">ISBN</th>
+                    <th className="text-left px-5 py-3">Stock</th>
+                    <th className="text-right px-5 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {books.map((book) => (
+                    <tr key={book._id} className="border-t border-gray-100 dark:border-gray-700">
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={book.thumbnail || "https://via.placeholder.com/40x56?text=—"}
+                            alt=""
+                            className="w-8 h-11 object-cover rounded-sm bg-gray-100 dark:bg-gray-700 flex-shrink-0"
                           />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setDeletingBook(book)}
-                        className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
-                        title="Delete book"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 7h12M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2m-8 0 .8 12a2 2 0 0 0 2 1.9h4.4a2 2 0 0 0 2-1.9L18 7"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-
-        {metadata && metadata.totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
-            <span>
-              Page {metadata.currentPage} of {metadata.totalPages} (
-              {metadata.totalItems} books)
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={!metadata.hasPrevPage}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-40"
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={!metadata.hasNextPage}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-40"
-              >
-                Next
-              </button>
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                              {book.title}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {(book.authors || []).join(", ")}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
+                        {book.category || "—"}
+                      </td>
+                      <td className="px-5 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
+                        {book.isbn}
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                            {book.availableCopies}/{book.totalCopies}
+                          </span>
+                          <button
+                            onClick={() => setStockBook(book)}
+                            className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline whitespace-nowrap"
+                          >
+                            Edit Stock
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setEditingBook(book)}
+                            className="p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+                            title="Edit book"
+                            aria-label="Edit book"
+                          >
+                            <IconEdit />
+                          </button>
+                          <button
+                            onClick={() => setDeletingBook(book)}
+                            className="p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
+                            title="Delete book"
+                            aria-label="Delete book"
+                          >
+                            <IconTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+
+            {showPagination && (
+              <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700">
+                {paginationControls}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Mobile: cards */}
+          <div className="md:hidden space-y-3">
+            {books.map((book) => (
+              <div
+                key={book._id}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4"
+              >
+                <div className="flex gap-3">
+                  <img
+                    src={book.thumbnail || "https://via.placeholder.com/40x56?text=—"}
+                    alt=""
+                    className="w-12 h-16 object-cover rounded-sm bg-gray-100 dark:bg-gray-700 flex-shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2 break-words">
+                      {book.title}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {(book.authors || []).join(", ")}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {book.category || "—"}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 font-mono truncate">
+                      {book.isbn}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      <span className="font-medium">{book.availableCopies}/{book.totalCopies}</span>{" "}
+                      <span className="text-xs text-gray-400 dark:text-gray-500">in stock</span>
+                    </span>
+                    <button
+                      onClick={() => setStockBook(book)}
+                      className="py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      Edit Stock
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1 -mr-2">
+                    <button
+                      onClick={() => setEditingBook(book)}
+                      className="p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+                      aria-label="Edit book"
+                    >
+                      <IconEdit />
+                    </button>
+                    <button
+                      onClick={() => setDeletingBook(book)}
+                      className="p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
+                      aria-label="Delete book"
+                    >
+                      <IconTrash />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {showPagination && <div className="pt-1">{paginationControls}</div>}
+          </div>
+        </>
+      )}
 
       <EditBookModal
         isOpen={!!editingBook}
